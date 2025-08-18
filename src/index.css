@@ -1,58 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* EyeHear Futuristic Sci-Fi Design System - All colors MUST be HSL */
 
 @layer base {
   :root {
-    /* EyeHear Design System - Dark Theme Default */
-    --background: 0 0% 8%;
+    /* Futuristic Sci-Fi Dark Theme */
+    --background: 240 10% 5%;
+    --background-secondary: 240 10% 8%;
+    --background-tertiary: 240 10% 10%;
     --foreground: 0 0% 98%;
 
-    --card: 217.2 32.6% 12%;
+    --card: 240 10% 8%;
     --card-foreground: 0 0% 98%;
+    --card-glass: 240 10% 8% / 0.7;
 
-    --popover: 217.2 32.6% 12%;
+    --popover: 240 10% 8%;
     --popover-foreground: 0 0% 98%;
 
-    /* Green primary accent for Hungarian app */
-    --primary: 142 76% 36%;
+    /* Neon Purple Primary */
+    --primary: 270 100% 70%;
+    --primary-bright: 270 100% 80%;
+    --primary-dark: 270 100% 60%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    /* Glassmorphic Secondary */
+    --secondary: 240 10% 15%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 10% 12%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 240 10% 15%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Enhanced Destructive */
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 142 76% 36%;
+    --border: 240 10% 18%;
+    --input: 240 10% 12%;
+    --ring: 270 100% 70%;
 
-    /* Custom colors for EyeHear */
-    --transcript-orange: 25 100% 60%;
-    --success: 142 76% 36%;
-    --warning: 45 93% 58%;
-    --info: 217 91% 60%;
+    /* Sci-Fi Accent Colors */
+    --transcript-cyan: 180 100% 50%;
+    --neon-gold: 45 100% 50%;
+    --success: 120 100% 50%;
+    --warning: 45 100% 50%;
+    --info: 200 100% 50%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 42%));
-    --gradient-header: linear-gradient(180deg, hsl(217.2 32.6% 12%), hsl(217.2 32.6% 10%));
+    /* Futuristic Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(270 100% 70%), hsl(270 100% 80%));
+    --gradient-background: linear-gradient(135deg, hsl(240 10% 5%), hsl(240 10% 8%));
+    --gradient-card: linear-gradient(135deg, hsl(240 10% 8% / 0.8), hsl(240 10% 12% / 0.6));
+    --gradient-header: linear-gradient(135deg, hsl(240 10% 8% / 0.9), hsl(240 10% 5% / 0.95));
+    --gradient-transcript: linear-gradient(45deg, hsl(180 100% 50%), hsl(180 100% 60%));
     
-    /* Animations & Effects */
-    --mic-glow: 0 0 30px hsl(142 76% 36% / 0.6);
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* 3D & Animation Effects */
+    --mic-glow: 0 0 40px hsl(270 100% 70% / 0.8);
+    --neon-glow: 0 0 20px hsl(270 100% 70% / 0.6);
+    --card-shadow: 0 8px 32px hsl(240 10% 3% / 0.5);
+    --glass-backdrop: blur(16px);
+    --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    --transition-spring: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -64,36 +79,53 @@ All colors MUST be HSL.
     --sidebar-ring: 142 76% 36%;
   }
 
+    /* Sidebar System */
+    --sidebar-background: 240 10% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 270 100% 70%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 10% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 10% 15%;
+    --sidebar-ring: 270 100% 70%;
+  }
+
   .light {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 98%;
+    --background-secondary: 0 0% 95%;
+    --background-tertiary: 0 0% 92%;
+    --foreground: 240 10% 5%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 5%;
+    --card-glass: 0 0% 100% / 0.8;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 5%;
 
-    --primary: 142 76% 36%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 270 100% 60%;
+    --primary-bright: 270 100% 70%;
+    --primary-dark: 270 100% 50%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 5% 90%;
+    --secondary-foreground: 240 10% 5%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 5% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 240 5% 88%;
+    --accent-foreground: 240 10% 5%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 142 76% 36%;
+    --border: 240 5% 85%;
+    --input: 240 5% 90%;
+    --ring: 270 100% 60%;
 
-    --transcript-orange: 25 100% 50%;
+    --transcript-cyan: 180 100% 40%;
+    --neon-gold: 45 100% 45%;
   }
 }
 
@@ -103,38 +135,167 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    background: var(--gradient-background);
+    background-attachment: fixed;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 50%, hsl(270 100% 70% / 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(180 100% 50% / 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, hsl(45 100% 50% / 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
-  /* EyeHear Custom Components */
+  /* Futuristic Sci-Fi Components */
   .transcript-vibrant {
-    color: hsl(var(--transcript-orange));
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, monospace;
+    background: var(--gradient-transcript);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Inter', system-ui, monospace;
     font-weight: 500;
-    line-height: 1.6;
-    letter-spacing: 0.02em;
+    line-height: 1.7;
+    letter-spacing: 0.05em;
+    position: relative;
+    animation: text-glow 3s ease-in-out infinite alternate;
+  }
+
+  .transcript-card {
+    background: var(--gradient-card);
+    backdrop-filter: var(--glass-backdrop);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  .transcript-card:hover {
+    transform: translateY(-2px) rotateX(2deg);
+    box-shadow: 
+      var(--card-shadow),
+      0 0 30px hsl(var(--primary) / 0.3);
   }
 
   .mic-button-active {
     box-shadow: var(--mic-glow);
-    animation: pulse-glow 2s ease-in-out infinite;
+    animation: mic-pulse 2s ease-in-out infinite, mic-rotate 8s linear infinite;
+    background: var(--gradient-primary);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mic-button-active::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, hsl(var(--primary-bright) / 0.3), transparent);
+    animation: mic-shine 3s linear infinite;
+  }
+
+  .glass-card {
+    background: hsl(var(--card-glass));
+    backdrop-filter: var(--glass-backdrop);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+  }
+
+  .neon-border {
+    border: 2px solid hsl(var(--primary));
+    box-shadow: 
+      0 0 10px hsl(var(--primary) / 0.5),
+      inset 0 0 10px hsl(var(--primary) / 0.1);
   }
 
   .header-gradient {
     background: var(--gradient-header);
+    backdrop-filter: var(--glass-backdrop);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
   }
 
   .smooth-transition {
     transition: var(--transition-smooth);
   }
+
+  .spring-transition {
+    transition: var(--transition-spring);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.6);
+  }
+
+  .particle-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .particle-bg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, hsl(var(--primary) / 0.3), transparent),
+      radial-gradient(2px 2px at 40px 70px, hsl(var(--transcript-cyan) / 0.2), transparent),
+      radial-gradient(1px 1px at 90px 40px, hsl(var(--neon-gold) / 0.3), transparent);
+    background-repeat: repeat;
+    background-size: 150px 100px;
+    animation: particle-float 20s linear infinite;
+    pointer-events: none;
+  }
 }
 
 @layer utilities {
   .text-transcript {
-    color: hsl(var(--transcript-orange));
+    background: var(--gradient-transcript);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .bg-gradient-primary {
@@ -144,13 +305,122 @@ All colors MUST be HSL.
   .bg-gradient-header {
     background: var(--gradient-header);
   }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .bg-glass {
+    background: hsl(var(--card-glass));
+    backdrop-filter: var(--glass-backdrop);
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .rotate-y-5 {
+    transform: rotateY(5deg);
+  }
+
+  .rotate-x-2 {
+    transform: rotateX(2deg);
+  }
 }
 
-@keyframes pulse-glow {
+/* Futuristic Sci-Fi Animations */
+@keyframes mic-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px hsl(142 76% 36% / 0.4);
+    box-shadow: 
+      0 0 20px hsl(var(--primary) / 0.4),
+      0 0 40px hsl(var(--primary) / 0.2);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 40px hsl(142 76% 36% / 0.8);
+    box-shadow: 
+      0 0 40px hsl(var(--primary) / 0.8),
+      0 0 80px hsl(var(--primary) / 0.4);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes mic-rotate {
+  0% { transform: scale(1.05) rotate(0deg); }
+  100% { transform: scale(1.05) rotate(360deg); }
+}
+
+@keyframes mic-shine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+@keyframes text-glow {
+  0%, 100% {
+    filter: brightness(1) contrast(1);
+    text-shadow: 0 0 10px hsl(var(--transcript-cyan) / 0.3);
+  }
+  50% {
+    filter: brightness(1.2) contrast(1.1);
+    text-shadow: 0 0 20px hsl(var(--transcript-cyan) / 0.6);
+  }
+}
+
+@keyframes particle-float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(120deg); }
+  66% { transform: translateY(5px) rotate(240deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
+
+@keyframes slide-in-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes card-hover {
+  0% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+  100% { transform: translateY(-4px) rotateX(5deg) rotateY(2deg); }
+}
+
+@keyframes progress-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes fade-in-scale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotateY(180deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+  }
+  50% {
+    border-color: hsl(var(--primary-bright));
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.8);
   }
 }

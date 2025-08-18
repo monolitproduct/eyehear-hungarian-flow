@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Save, FileText, Clock, Hash } from 'lucide-react';
+import { Mic, MicOff, Save, FileText, Clock, Hash, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import SavedTranscripts from './SavedTranscripts';
@@ -454,152 +455,338 @@ const SpeechTranscriber: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="header-gradient border-b border-border p-4 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">EyeHear</h1>
-            <p className="text-sm text-muted-foreground">Magyar beszédfelismerés</p>
-          </div>
-          
-          {/* Status indicators */}
-          <div className="flex items-center gap-4 text-sm">
-            {isListening && (
-              <>
-                <div className="flex items-center gap-1 text-primary">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatDuration(sessionDuration)}</span>
-                </div>
-                <div className="flex items-center gap-1 text-foreground">
-                  <Hash className="w-4 h-4" />
-                  <span>{wordCount} szó</span>
-                </div>
-              </>
-            )}
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowSavedTranscripts(true)}
-              className="flex items-center gap-2"
+    <div className="min-h-screen bg-background flex flex-col particle-bg">
+      {/* Futuristic Header */}
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="header-gradient border-b border-border p-6 sticky top-0 z-10"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="bento-grid grid-cols-1 md:grid-cols-3 gap-6 p-0">
+            {/* App Title Section */}
+            <motion.div 
+              className="glass-card p-4 neon-border"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
             >
-              <FileText className="w-4 h-4" />
-              Mentett átiratok
-            </Button>
+              <h1 className="text-3xl font-heading font-bold text-glow bg-gradient-primary bg-clip-text text-transparent">
+                EyeHear
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-neon-gold" />
+                Magyar beszédfelismerés AI
+              </p>
+            </motion.div>
+
+            {/* Status Display */}
+            <AnimatePresence>
+              {isListening && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="glass-card p-4 grid grid-cols-2 gap-4"
+                >
+                  <div className="flex items-center gap-2 text-primary">
+                    <Clock className="w-5 h-5 animate-pulse" />
+                    <span className="font-mono text-lg">{formatDuration(sessionDuration)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-transcript-cyan">
+                    <Hash className="w-5 h-5" />
+                    <span className="font-mono text-lg">{wordCount} szó</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* Action Button */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowSavedTranscripts(true)}
+                className="w-full glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300"
+              >
+                <FileText className="w-5 h-5 mr-2" />
+                Mentett átiratok
+              </Button>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Main transcript area */}
-      <main className="flex-1 p-4 overflow-y-auto">
-        <div className="max-w-4xl mx-auto">
-          <Card className="min-h-[60vh] p-6">
+      {/* Futuristic Main Transcript Area */}
+      <main className="flex-1 p-6 overflow-y-auto">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="glass-card min-h-[65vh] p-8 perspective-1000"
+          >
             {!isListening && transcript.length === 0 && !currentInterim ? (
-              <div className="flex items-center justify-center h-full text-center">
-                <div>
-                  <Mic className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h2 className="text-xl font-semibold mb-2">Kezdjen el beszélni</h2>
-                  <p className="text-muted-foreground">
-                    Nyomja meg a mikrofon gombot a beszédfelismerés indításához
-                  </p>
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="flex items-center justify-center h-full text-center"
+              >
+                <div className="space-y-6">
+                  <motion.div
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="relative"
+                  >
+                    <Mic className="w-24 h-24 mx-auto text-primary drop-shadow-lg" />
+                    <div className="absolute inset-0 w-24 h-24 mx-auto border-2 border-primary rounded-full animate-neon-pulse"></div>
+                  </motion.div>
+                  <div className="space-y-3">
+                    <h2 className="text-3xl font-heading font-bold text-glow">
+                      Kezdjen el beszélni
+                    </h2>
+                    <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
+                      Nyomja meg a mikrofon gombot a beszédfelismerés indításához. 
+                      Az AI valós időben írja át beszédét.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             ) : (
-              <div className="space-y-2">
-                {/* Final transcript segments */}
-                {transcript.map((segment) => (
-                  <div key={segment.id}>
-                    {formatTranscriptText(segment.text).map((chunk, index) => (
-                      <div key={`${segment.id}-${index}`} className="transcript-vibrant">
-                        {chunk}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-                
-                {/* Current interim text */}
-                {currentInterim && (
-                  <div>
-                    {formatTranscriptText(currentInterim).map((chunk, index) => (
-                      <div key={`interim-${index}`} className="transcript-vibrant opacity-70">
-                        {chunk}
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-4 perspective-1000">
+                <AnimatePresence>
+                  {/* Final transcript segments */}
+                  {transcript.map((segment, segmentIndex) => (
+                    <motion.div 
+                      key={segment.id}
+                      initial={{ opacity: 0, y: 20, rotateX: 90 }}
+                      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                      transition={{ 
+                        delay: segmentIndex * 0.1,
+                        type: "spring",
+                        stiffness: 300
+                      }}
+                      className="space-y-2"
+                    >
+                      {formatTranscriptText(segment.text).map((chunk, index) => (
+                        <motion.div
+                          key={`${segment.id}-${index}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="transcript-card p-4 transcript-vibrant text-lg leading-relaxed hover:rotate-x-2 transition-all duration-300"
+                          whileHover={{ 
+                            scale: 1.02,
+                            rotateX: 2,
+                            boxShadow: "0 10px 40px hsl(var(--primary) / 0.2)"
+                          }}
+                        >
+                          {chunk}
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  ))}
+                  
+                  {/* Current interim text */}
+                  {currentInterim && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="space-y-2"
+                    >
+                      {formatTranscriptText(currentInterim).map((chunk, index) => (
+                        <motion.div
+                          key={`interim-${index}`}
+                          animate={{ 
+                            opacity: [0.5, 0.8, 0.5],
+                            scale: [0.98, 1.02, 0.98]
+                          }}
+                          transition={{ 
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          className="transcript-card p-4 transcript-vibrant text-lg leading-relaxed border-2 border-primary/30"
+                        >
+                          {chunk}
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 
                 <div ref={transcriptEndRef} />
               </div>
             )}
-          </Card>
+          </motion.div>
         </div>
       </main>
 
-      {/* Fixed bottom navigation */}
-      <footer className="border-t border-border p-4 bg-background">
-        <div className="max-w-4xl mx-auto flex justify-center">
-          <Button
-            size="lg"
-            onClick={isListening ? stopListening : startListening}
-            disabled={!isSupported}
-            className={`w-16 h-16 rounded-full ${
-              isListening 
-                ? 'mic-button-active bg-destructive hover:bg-destructive/90' 
-                : 'bg-primary hover:bg-primary/90'
-            } smooth-transition`}
-          >
-            {isListening ? (
-              <MicOff className="w-8 h-8" />
-            ) : (
-              <Mic className="w-8 h-8" />
-            )}
-          </Button>
-        </div>
-        
-        {isListening && (
-          <div className="text-center mt-2 text-sm text-muted-foreground">
-            Beszéljen a mikrofonba • Maximum {formatDuration(MAX_SESSION_DURATION - sessionDuration)} hátra
-          </div>
-        )}
-      </footer>
-
-      {/* Save dialog */}
-      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Átirat mentése</DialogTitle>
-            <DialogDescription>
-              Adjon címet az átiratnak, vagy hagyja üresen az alapértelmezett címhez.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Cím</Label>
-              <Input
-                id="title"
-                value={saveTitle}
-                onChange={(e) => setSaveTitle(e.target.value)}
-                placeholder="Átirat címe..."
-              />
-            </div>
+      {/* Futuristic Fixed Bottom Navigation */}
+      <motion.footer 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="border-t border-border/50 p-6 bg-glass backdrop-blur-glass"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col items-center gap-4">
+            {/* Main Microphone Button */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative"
+            >
+              <Button
+                size="lg"
+                onClick={isListening ? stopListening : startListening}
+                disabled={!isSupported}
+                className={`w-20 h-20 rounded-full relative overflow-hidden transition-all duration-500 ${
+                  isListening 
+                    ? 'mic-button-active bg-destructive hover:bg-destructive/90 shadow-glow' 
+                    : 'bg-gradient-primary hover:shadow-neon'
+                } border-2 border-primary/30`}
+              >
+                <motion.div
+                  animate={isListening ? { rotate: 360 } : { rotate: 0 }}
+                  transition={{ duration: 2, repeat: isListening ? Infinity : 0, ease: "linear" }}
+                >
+                  {isListening ? (
+                    <MicOff className="w-10 h-10" />
+                  ) : (
+                    <Mic className="w-10 h-10" />
+                  )}
+                </motion.div>
+                
+                {/* Ripple effect */}
+                {isListening && (
+                  <motion.div
+                    className="absolute inset-0 border-2 border-primary rounded-full"
+                    animate={{
+                      scale: [1, 1.5, 2],
+                      opacity: [0.5, 0.2, 0]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeOut"
+                    }}
+                  />
+                )}
+              </Button>
+            </motion.div>
             
-            <div className="text-sm text-muted-foreground">
-              Szavak száma: {wordCount + (currentInterim ? currentInterim.split(' ').filter(w => w.length > 0).length : 0)} • 
-              Időtartam: {formatDuration(sessionDuration)}
-            </div>
+            {/* Session Status */}
+            <AnimatePresence>
+              {isListening && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="glass-card px-6 py-3 rounded-full border border-primary/30"
+                >
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-2 text-primary">
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="w-2 h-2 bg-primary rounded-full"
+                      />
+                      <span className="font-mono">REC</span>
+                    </div>
+                    <div className="h-4 w-px bg-border"></div>
+                    <span className="text-muted-foreground">
+                      Beszéljen a mikrofonba • Maximum{' '}
+                      <span className="text-warning font-mono">
+                        {formatDuration(MAX_SESSION_DURATION - sessionDuration)}
+                      </span>{' '}
+                      hátra
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
+        </div>
+      </motion.footer>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={discardTranscript}>
-              Elvetés
-            </Button>
-            <Button onClick={saveTranscript} className="flex items-center gap-2">
-              <Save className="w-4 h-4" />
-              Mentés
-            </Button>
-          </DialogFooter>
+      {/* Futuristic Save Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="glass-card border-primary/30 max-w-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <DialogHeader className="space-y-4">
+              <DialogTitle className="text-2xl font-heading text-glow flex items-center gap-2">
+                <Save className="w-6 h-6 text-primary" />
+                Átirat mentése
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Adjon címet az átiratnak, vagy hagyja üresen az alapértelmezett címhez.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6 my-6">
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-foreground font-medium">Cím</Label>
+                <Input
+                  id="title"
+                  value={saveTitle}
+                  onChange={(e) => setSaveTitle(e.target.value)}
+                  placeholder="Átirat címe..."
+                  className="glass-card border-primary/30 focus:border-primary focus:ring-primary/30"
+                />
+              </div>
+              
+              <motion.div 
+                className="glass-card p-4 space-y-2 border border-primary/20"
+                whileHover={{ borderColor: "hsl(var(--primary) / 0.4)" }}
+              >
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Szavak száma:</span>
+                  <span className="text-transcript-cyan font-mono">
+                    {wordCount + (currentInterim ? currentInterim.split(' ').filter(w => w.length > 0).length : 0)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Időtartam:</span>
+                  <span className="text-neon-gold font-mono">
+                    {formatDuration(sessionDuration)}
+                  </span>
+                </div>
+              </motion.div>
+            </div>
+
+            <DialogFooter className="gap-3">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  variant="outline" 
+                  onClick={discardTranscript}
+                  className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                >
+                  Elvetés
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  onClick={saveTranscript} 
+                  className="bg-gradient-primary hover:shadow-neon flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  Mentés
+                </Button>
+              </motion.div>
+            </DialogFooter>
+          </motion.div>
         </DialogContent>
       </Dialog>
     </div>
