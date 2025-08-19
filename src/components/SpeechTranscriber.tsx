@@ -473,12 +473,12 @@ const SpeechTranscriber: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <h1 className="text-3xl font-heading font-bold text-black mb-2 text-center">
+              <h1 className="text-3xl font-heading font-bold text-white mb-2 text-center animate-pulse-glow">
                 EyeHear
               </h1>
-              <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-neon-gold" />
-                Magyar beszédfelismerés AI
+              <p className="text-sm text-muted-foreground mt-1 text-center">
+                <Zap className="w-4 h-4 text-neon-gold mx-auto mb-1" />
+                Magyar nyelvű beszédfelismerő AI
               </p>
             </motion.div>
 
@@ -555,11 +555,10 @@ const SpeechTranscriber: React.FC = () => {
                   </motion.div>
                   <div className="space-y-3">
                     <h2 className="text-3xl font-heading font-bold text-glow">
-                      Kezdjen el beszélni
+                      AI BESZÉDFELISMERÉS
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
-                      Nyomja meg a mikrofon gombot a beszédfelismerés indításához. 
-                      Az AI valós időben írja át beszédét.
+                      Nyomja meg a mikrofon gombot és valós időben olvashatja az elhangzott szöveget
                     </p>
                   </div>
                 </div>
@@ -585,7 +584,7 @@ const SpeechTranscriber: React.FC = () => {
                           key={`${segment.id}-${index}`}
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="py-2 text-transcript-cyan text-lg leading-relaxed"
+                          className="py-1 text-transcript-cyan text-2xl leading-tight"
                           whileHover={{ scale: 1.02 }}
                         >
                           {chunk}
@@ -613,7 +612,7 @@ const SpeechTranscriber: React.FC = () => {
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
-                          className="py-2 text-transcript-cyan text-lg leading-relaxed opacity-70"
+                          className="py-1 text-transcript-cyan text-2xl leading-tight opacity-70"
                         >
                           {chunk}
                         </motion.div>
