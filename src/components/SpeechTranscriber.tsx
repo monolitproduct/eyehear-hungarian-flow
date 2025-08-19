@@ -318,6 +318,7 @@ const SpeechTranscriber: React.FC = () => {
       toast({
         title: "Beszédfelismerés aktív",
         description: "Beszéljen a mikrofonba. A felismerés folyamatos, maximum 30 percig.",
+        duration: 2000,
       });
     } catch (error) {
       console.error('Error starting recognition:', error);
@@ -362,6 +363,7 @@ const SpeechTranscriber: React.FC = () => {
     toast({
       title: "Felvétel leállítva",
       description: "A beszédfelismerés befejeződött.",
+      duration: 2000,
     });
   }, [transcript, currentInterim, handleResult, handleError, handleEnd, toast]);
 
@@ -393,6 +395,7 @@ const SpeechTranscriber: React.FC = () => {
       toast({
         title: "Átirat mentve",
         description: "Az átirat sikeresen mentve lett az adatbázisba.",
+        duration: 2000,
       });
 
       setShowSaveDialog(false);
@@ -470,7 +473,7 @@ const SpeechTranscriber: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <h1 className="text-3xl font-heading font-bold text-glow bg-gradient-primary bg-clip-text text-transparent">
+              <h1 className="text-3xl font-heading font-bold text-black mb-2 text-center">
                 EyeHear
               </h1>
               <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
@@ -582,12 +585,8 @@ const SpeechTranscriber: React.FC = () => {
                           key={`${segment.id}-${index}`}
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          className="transcript-card p-4 transcript-vibrant text-lg leading-relaxed hover:rotate-x-2 transition-all duration-300"
-                          whileHover={{ 
-                            scale: 1.02,
-                            rotateX: 2,
-                            boxShadow: "0 10px 40px hsl(var(--primary) / 0.2)"
-                          }}
+                          className="py-2 text-transcript-cyan text-lg leading-relaxed"
+                          whileHover={{ scale: 1.02 }}
                         >
                           {chunk}
                         </motion.div>
@@ -614,7 +613,7 @@ const SpeechTranscriber: React.FC = () => {
                             repeat: Infinity,
                             ease: "easeInOut"
                           }}
-                          className="transcript-card p-4 transcript-vibrant text-lg leading-relaxed border-2 border-primary/30"
+                          className="py-2 text-transcript-cyan text-lg leading-relaxed opacity-70"
                         >
                           {chunk}
                         </motion.div>
