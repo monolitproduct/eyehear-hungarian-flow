@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transcripts: {
         Row: {
           content: string
@@ -23,6 +47,7 @@ export type Database = {
           recorded_at: string
           title: string
           updated_at: string
+          user_id: string | null
           word_count: number
         }
         Insert: {
@@ -33,6 +58,7 @@ export type Database = {
           recorded_at?: string
           title?: string
           updated_at?: string
+          user_id?: string | null
           word_count?: number
         }
         Update: {
@@ -43,6 +69,7 @@ export type Database = {
           recorded_at?: string
           title?: string
           updated_at?: string
+          user_id?: string | null
           word_count?: number
         }
         Relationships: []
