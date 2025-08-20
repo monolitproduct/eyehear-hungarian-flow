@@ -5,9 +5,10 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Save, FileText, Clock, Hash, Zap } from 'lucide-react';
+import { Mic, MicOff, Save, FileText, Clock, Hash, Zap, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import SavedTranscripts from './SavedTranscripts';
 
 // TypeScript interfaces for data structures
@@ -65,6 +66,7 @@ const SpeechTranscriber: React.FC = () => {
   const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
 
   // Constants
   const MAX_SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
@@ -376,6 +378,17 @@ const SpeechTranscriber: React.FC = () => {
         title: "Nincs tartalom",
         description: "Nincs mentendő átirat.",
         variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Bejelentkezés szükséges",
+        description: "Jelentkezzen be a mentéshez",
+        variant: "destructive",
+        duration: 2000,
       });
       return;
     }
@@ -388,6 +401,7 @@ const SpeechTranscriber: React.FC = () => {
           content: fullContent.trim(),
           word_count: wordCount + (currentInterim ? currentInterim.split(' ').filter(w => w.length > 0).length : 0),
           duration_seconds: Math.floor(sessionDuration / 1000),
+          user_id: user.id,
         }]);
 
       if (error) throw error;
@@ -406,6 +420,7 @@ const SpeechTranscriber: React.FC = () => {
         title: "Mentési hiba",
         description: "Nem sikerült menteni az átiratot.",
         variant: "destructive",
+        duration: 2000,
       });
     }
   };
@@ -507,15 +522,24 @@ const SpeechTranscriber: React.FC = () => {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              className="flex gap-2"
             >
               <Button
                 variant="outline"
                 size="lg"
                 onClick={() => setShowSavedTranscripts(true)}
-                className="w-full glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300"
+                className="flex-1 glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300"
               >
                 <FileText className="w-5 h-5 mr-2" />
                 Mentett átiratok
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={signOut}
+                className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300"
+              >
+                <LogOut className="w-5 h-5" />
               </Button>
             </motion.div>
           </div>

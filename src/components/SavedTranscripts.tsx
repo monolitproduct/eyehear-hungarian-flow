@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ArrowLeft, Trash2, Calendar, Clock, Hash, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 // TypeScript interface for transcript data
 interface Transcript {
@@ -29,6 +30,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
   const [transcriptToDelete, setTranscriptToDelete] = useState<Transcript | null>(null);
 
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Load saved transcripts from database
   useEffect(() => {
@@ -36,11 +38,22 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
   }, []);
 
   const loadTranscripts = async () => {
+    if (!user) {
+      toast({
+        title: "Bejelentkezés szükséges",
+        description: "Jelentkezzen be a mentett átiratok megtekintéséhez",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('transcripts')
         .select('*')
+        .eq('user_id', user.id)
         .order('recorded_at', { ascending: false });
 
       if (error) throw error;
@@ -52,6 +65,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
         title: "Betöltési hiba",
         description: "Nem sikerült betölteni a mentett átiratokat.",
         variant: "destructive",
+        duration: 2000,
       });
     } finally {
       setLoading(false);
@@ -75,6 +89,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
       toast({
         title: "Átirat törölve",
         description: "Az átirat sikeresen törölve lett.",
+        duration: 2000,
       });
     } catch (error) {
       console.error('Error deleting transcript:', error);
@@ -82,6 +97,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
         title: "Törlési hiba",
         description: "Nem sikerült törölni az átiratot.",
         variant: "destructive",
+        duration: 2000,
       });
     }
   };
