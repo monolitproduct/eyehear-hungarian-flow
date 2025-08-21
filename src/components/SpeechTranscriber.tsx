@@ -117,10 +117,11 @@ const SpeechTranscriber: React.FC = () => {
     };
   }, [isListening, sessionStartTime, toast]);
 
-  // Auto-scroll to bottom when transcript updates
+  // Auto-scroll to bottom when transcript updates (for bottom-anchored layout)
   useEffect(() => {
     if (transcriptEndRef.current) {
-      transcriptEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      // Scroll to the ref element which is now at the bottom
+      transcriptEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }, [transcript, currentInterim]);
 
@@ -481,7 +482,7 @@ const SpeechTranscriber: React.FC = () => {
         className="header-gradient border-b border-border p-6 sticky top-0 z-10"
       >
         <div className="max-w-6xl mx-auto">
-          <div className="bento-grid grid-cols-1 md:grid-cols-3 gap-6 p-0">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* App Title Section */}
             <motion.div 
               className="glass-card p-4 neon-border"
@@ -497,28 +498,7 @@ const SpeechTranscriber: React.FC = () => {
               </p>
             </motion.div>
 
-            {/* Status Display */}
-            <AnimatePresence>
-              {isListening && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="glass-card p-4 grid grid-cols-2 gap-4"
-                >
-                  <div className="flex items-center gap-2 text-primary">
-                    <Clock className="w-5 h-5 animate-pulse" />
-                    <span className="font-mono text-lg">{formatDuration(sessionDuration)}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-transcript-cyan">
-                    <Hash className="w-5 h-5" />
-                    <span className="font-mono text-lg">{wordCount} szó</span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            {/* Action Button */}
+            {/* Action Buttons */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -528,7 +508,7 @@ const SpeechTranscriber: React.FC = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => setShowSavedTranscripts(true)}
-                className="flex-1 glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300"
+                className="glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300"
               >
                 <FileText className="w-5 h-5 mr-2" />
                 Mentett átiratok
@@ -588,64 +568,65 @@ const SpeechTranscriber: React.FC = () => {
                 </div>
               </motion.div>
             ) : (
-              <div className="space-y-4 perspective-1000">
-                <AnimatePresence>
-                  {/* Final transcript segments */}
-                  {transcript.map((segment, segmentIndex) => (
-                    <motion.div 
-                      key={segment.id}
-                      initial={{ opacity: 0, y: 20, rotateX: 90 }}
-                      animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                      transition={{ 
-                        delay: segmentIndex * 0.1,
-                        type: "spring",
-                        stiffness: 300
-                      }}
-                      className="space-y-2"
-                    >
-                      {formatTranscriptText(segment.text).map((chunk, index) => (
-                        <motion.div
-                          key={`${segment.id}-${index}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="py-1 text-transcript-cyan text-2xl leading-tight"
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          {chunk}
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  ))}
-                  
-                  {/* Current interim text */}
-                  {currentInterim && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="space-y-2"
-                    >
-                      {formatTranscriptText(currentInterim).map((chunk, index) => (
-                        <motion.div
-                          key={`interim-${index}`}
-                          animate={{ 
-                            opacity: [0.5, 0.8, 0.5],
-                            scale: [0.98, 1.02, 0.98]
-                          }}
-                          transition={{ 
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                          className="py-1 text-transcript-cyan text-2xl leading-tight opacity-70"
-                        >
-                          {chunk}
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                
-                <div ref={transcriptEndRef} />
+              <div className="h-full flex flex-col-reverse overflow-y-auto">
+                <div className="space-y-4 perspective-1000">
+                  <div ref={transcriptEndRef} />
+                  <AnimatePresence>
+                    {/* Current interim text - shows at bottom */}
+                    {currentInterim && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="space-y-2"
+                      >
+                        {formatTranscriptText(currentInterim).map((chunk, index) => (
+                          <motion.div
+                            key={`interim-${index}`}
+                            animate={{ 
+                              opacity: [0.5, 0.8, 0.5],
+                              scale: [0.98, 1.02, 0.98]
+                            }}
+                            transition={{ 
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                            className="py-1 text-transcript-cyan text-2xl leading-tight opacity-70"
+                          >
+                            {chunk}
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
+                    
+                    {/* Final transcript segments - newest at bottom */}
+                    {transcript.slice().reverse().map((segment, segmentIndex) => (
+                      <motion.div 
+                        key={segment.id}
+                        initial={{ opacity: 0, y: -20, rotateX: 90 }}
+                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                        transition={{ 
+                          delay: segmentIndex * 0.1,
+                          type: "spring",
+                          stiffness: 300
+                        }}
+                        className="space-y-2"
+                      >
+                        {formatTranscriptText(segment.text).map((chunk, index) => (
+                          <motion.div
+                            key={`${segment.id}-${index}`}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="py-1 text-transcript-cyan text-2xl leading-tight"
+                            whileHover={{ scale: 1.02 }}
+                          >
+                            {chunk}
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
               </div>
             )}
           </motion.div>
