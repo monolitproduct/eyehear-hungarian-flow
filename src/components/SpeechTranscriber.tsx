@@ -492,7 +492,6 @@ const SpeechTranscriber: React.FC = () => {
                 EyeHear
               </h1>
               <p className="text-sm text-muted-foreground mt-1 text-center">
-                <Zap className="w-4 h-4 text-neon-gold mx-auto mb-1" />
                 Magyar nyelvű beszédfelismerő AI
               </p>
             </motion.div>
