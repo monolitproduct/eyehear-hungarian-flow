@@ -478,13 +478,13 @@ const SpeechTranscriber: React.FC = () => {
       <motion.header 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="header-gradient border-b border-border p-6 sticky top-0 z-10"
+        className="header-gradient border-b border-border p-4 sticky top-0 z-10"
       >
         <div className="max-w-6xl mx-auto">
-          <div className="bento-grid grid-cols-1 md:grid-cols-3 gap-6 p-0">
+          <div className="bento-grid grid-cols-1 md:grid-cols-3 gap-4 p-0">
             {/* App Title Section */}
             <motion.div 
-              className="glass-card p-4 neon-border"
+              className="glass-card p-3 neon-border"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
@@ -503,7 +503,7 @@ const SpeechTranscriber: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="glass-card p-4 grid grid-cols-2 gap-4"
+                  className="glass-card p-3 grid grid-cols-2 gap-3"
                 >
                   <div className="flex items-center gap-2 text-primary">
                     <Clock className="w-5 h-5 animate-pulse" />
@@ -546,13 +546,13 @@ const SpeechTranscriber: React.FC = () => {
       </motion.header>
 
       {/* Futuristic Main Transcript Area */}
-      <main className="flex-1 p-6 overflow-y-auto">
+      <main className="flex-1 p-4 overflow-y-auto">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card min-h-[65vh] p-8 perspective-1000"
+            className="glass-card min-h-[55vh] p-6 perspective-1000"
           >
             {!isListening && transcript.length === 0 && !currentInterim ? (
               <motion.div 
@@ -560,7 +560,7 @@ const SpeechTranscriber: React.FC = () => {
                 animate={{ scale: 1, opacity: 1 }}
                 className="flex items-center justify-center h-full text-center"
               >
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <motion.div
                     animate={{ 
                       scale: [1, 1.1, 1],
@@ -573,10 +573,10 @@ const SpeechTranscriber: React.FC = () => {
                     }}
                     className="relative"
                   >
-                    <Mic className="w-24 h-24 mx-auto text-primary drop-shadow-lg" />
-                    <div className="absolute inset-0 w-24 h-24 mx-auto border-2 border-primary rounded-full animate-neon-pulse"></div>
+                    <Mic className="w-20 h-20 mx-auto text-primary drop-shadow-lg" />
+                    <div className="absolute inset-0 w-20 h-20 mx-auto border-2 border-primary rounded-full animate-neon-pulse"></div>
                   </motion.div>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <h2 className="text-3xl font-heading font-bold text-glow">
                       AI BESZÉDFELISMERÉS
                     </h2>
@@ -587,7 +587,7 @@ const SpeechTranscriber: React.FC = () => {
                 </div>
               </motion.div>
             ) : (
-              <div className="space-y-4 perspective-1000">
+              <div className="space-y-3 perspective-1000">
                 <AnimatePresence>
                   {/* Final transcript segments */}
                   {transcript.map((segment, segmentIndex) => (
@@ -600,7 +600,7 @@ const SpeechTranscriber: React.FC = () => {
                         type: "spring",
                         stiffness: 300
                       }}
-                      className="space-y-2"
+                      className="space-y-1"
                     >
                       {formatTranscriptText(segment.text).map((chunk, index) => (
                         <motion.div
@@ -621,7 +621,7 @@ const SpeechTranscriber: React.FC = () => {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="space-y-2"
+                      className="space-y-1"
                     >
                       {formatTranscriptText(currentInterim).map((chunk, index) => (
                         <motion.div
@@ -655,10 +655,10 @@ const SpeechTranscriber: React.FC = () => {
       <motion.footer 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border-t border-border/50 p-6 bg-glass backdrop-blur-glass"
+        className="border-t border-border/50 p-4 bg-glass backdrop-blur-glass"
       >
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-3">
             {/* Main Microphone Button */}
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -711,9 +711,9 @@ const SpeechTranscriber: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="glass-card px-6 py-3 rounded-full border border-primary/30"
+                  className="glass-card px-4 py-2 rounded-full border border-primary/30"
                 >
-                  <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-3 text-sm">
                     <div className="flex items-center gap-2 text-primary">
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
@@ -756,7 +756,7 @@ const SpeechTranscriber: React.FC = () => {
               </DialogDescription>
             </DialogHeader>
             
-            <div className="space-y-6 my-6">
+            <div className="space-y-4 my-4">
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-foreground font-medium">Cím</Label>
                 <Input
@@ -787,7 +787,7 @@ const SpeechTranscriber: React.FC = () => {
               </motion.div>
             </div>
 
-            <DialogFooter className="gap-3">
+            <DialogFooter className="gap-2">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button 
                   variant="outline" 
