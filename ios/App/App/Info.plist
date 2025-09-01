@@ -25,7 +25,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires access to the microphone to convert speech into text.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This app requires access to speech recognition for live transcription.</string>
+	<string>This app requires access to speech recognition to transcribe voice to text live.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
