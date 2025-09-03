@@ -212,7 +212,7 @@ const SpeechTranscriber: React.FC = () => {
       case 'not-allowed':
         toast({
           title: "Mikrofonhozzáférés megtagadva",
-          description: "Engedélyezze a mikrofonhozzáférést a beállításokban.",
+          description: "Újítsa fel az oldalt és engedélyezze a mikrofonhozzáférést amikor kéri a böngésző.",
           variant: "destructive",
         });
         break;
@@ -280,14 +280,38 @@ const SpeechTranscriber: React.FC = () => {
     }, 100);
   }, [isListening, createRecognition, handleResult, handleError, handleEnd]);
 
+  // Request microphone permissions explicitly
+  const requestMicrophonePermission = async (): Promise<boolean> => {
+    try {
+      // First, try to get microphone permission
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop()); // Clean up
+      return true;
+    } catch (error) {
+      console.error('Microphone permission denied:', error);
+      toast({
+        title: "Mikrofonhozzáférés megtagadva",
+        description: "Engedélyezze a mikrofonhozzáférést a böngészőben és próbálja újra.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   // Start listening function
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     if (!isSupported) {
       toast({
         title: "Nem támogatott",
         description: "A böngésző nem támogatja a beszédfelismerést.",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Request microphone permission first
+    const hasPermission = await requestMicrophonePermission();
+    if (!hasPermission) {
       return;
     }
 
