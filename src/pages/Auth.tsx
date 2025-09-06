@@ -189,7 +189,7 @@ export default function Auth() {
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full bg-gradient-to-r from-[#FF0080] to-[#7928CA] hover:from-[#FF0080]/90 hover:to-[#7928CA]/90 text-white font-bold" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Bejelentkezés
                   </Button>
