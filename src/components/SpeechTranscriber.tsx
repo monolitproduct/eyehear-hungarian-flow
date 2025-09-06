@@ -515,7 +515,7 @@ const SpeechTranscriber: React.FC = () => {
               <h1 className="text-3xl font-heading font-bold text-white mb-2 text-center animate-pulse-glow">
                 EyeHear
               </h1>
-              <p className="text-sm text-muted-foreground mt-1 text-center">
+              <p className="text-sm text-white mt-1 text-center">
                 Magyar nyelvű beszédfelismerő AI
               </p>
             </motion.div>
@@ -704,11 +704,19 @@ const SpeechTranscriber: React.FC = () => {
                 size="lg"
                 onClick={isListening ? stopListening : startListening}
                 disabled={!isSupported}
-                className={`w-20 h-20 rounded-full relative overflow-hidden transition-all duration-500 ${
-                  isListening 
-                    ? 'mic-button-active' 
-                    : 'bg-gradient-pink-purple hover:shadow-neon'
-                } border-2 border-primary/30 text-white font-bold`}
+                className={`w-20 h-20 rounded-full relative overflow-hidden transition-all duration-500 text-white font-bold ${
+                  isListening ? 'mic-button-active' : ''
+                }`}
+                style={{
+                  background: 'linear-gradient(90deg, #FF0080 0%, #7928CA 100%)',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundSize: '100% 100%',
+                  backgroundPosition: 'left center',
+                  backgroundClip: 'padding-box',
+                  border: 'none',
+                  borderColor: 'transparent',
+                  borderRadius: '9999px'
+                }}
               >
                 <motion.div
                   animate={isListening ? { rotate: 360 } : { rotate: 0 }}

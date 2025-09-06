@@ -209,33 +209,22 @@
   }
 
   .mic-button-active {
-    box-shadow: var(--mic-glow);
-    animation: mic-pulse 2s ease-in-out infinite, mic-rotate 8s linear infinite;
-    background: var(--gradient-pink-purple);
     position: relative;
     overflow: hidden;
-  }
-
-  .mic-button-active::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: mic-shine 3s linear infinite;
   }
 
   .mic-button-active::after {
     content: '';
     position: absolute;
-    inset: -2px;
-    border-radius: inherit;
-    background: var(--gradient-pink-purple);
+    inset: -4px;
+    border-radius: 9999px;
+    background: transparent;
     filter: blur(8px);
     opacity: 0.7;
     z-index: -1;
+    box-shadow: 
+      0 0 22px rgba(255, 0, 128, 0.35),
+      0 0 22px rgba(121, 40, 202, 0.35);
     animation: mic-glow-pulse 2s ease-in-out infinite;
   }
 
