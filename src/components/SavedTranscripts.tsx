@@ -151,32 +151,27 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
       <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
         <header className="header-gradient border-b border-border p-4 sticky top-0 z-10">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedTranscript(null)}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Vissza a listához
-              </Button>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">{selectedTranscript.title}</h1>
-              </div>
-            </div>
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSelectedTranscript(null)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Vissza a listához
+          </Button>
 
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDeleteClick(selectedTranscript)}
-              className="flex items-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              Törlés
-            </Button>
-          </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => handleDeleteClick(selectedTranscript)}
+            className="flex items-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Törlés
+          </Button>
+        </div>
         </header>
 
         {/* Transcript content */}
