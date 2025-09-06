@@ -164,9 +164,6 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
               </Button>
               <div>
                 <h1 className="text-xl font-bold text-foreground">{selectedTranscript.title}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {formatDate(selectedTranscript.recorded_at)}
-                </p>
               </div>
             </div>
 
@@ -213,7 +210,13 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                   <div>
                     <p className="text-sm text-muted-foreground">Rögzítés dátuma</p>
                     <p className="text-lg font-semibold">
-                      {new Date(selectedTranscript.recorded_at).toLocaleDateString('hu-HU')}
+                      {new Date(selectedTranscript.recorded_at).toLocaleDateString('hu-HU', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }).replace(/\//g, '. ').replace(',', '')}
                     </p>
                   </div>
                 </CardContent>
@@ -293,27 +296,21 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
           ) : (
             <div className="space-y-4">
               {transcripts.map((transcript) => (
-                <Card key={transcript.id} className="hover:shadow-md smooth-transition">
+                <Card key={transcript.id} className="hover:shadow-md smooth-transition cursor-pointer" onClick={() => setSelectedTranscript(transcript)}>
                   <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col space-y-3">
                       <div className="flex items-start justify-between">
                         <h3 className="text-lg font-semibold pr-2 flex-1 min-w-0 break-words">{transcript.title}</h3>
                         
-                        {/* Action buttons - mobile responsive */}
+                        {/* Delete button only */}
                         <div className="flex items-center gap-1 flex-shrink-0">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedTranscript(transcript)}
-                            className="flex items-center gap-1 text-xs px-2 py-1 h-auto"
-                          >
-                            <Eye className="w-3 h-3" />
-                            <span className="hidden sm:inline">Megtekintés</span>
-                          </Button>
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => handleDeleteClick(transcript)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(transcript);
+                            }}
                             className="flex items-center justify-center p-1 h-auto w-8"
                           >
                             <Trash2 className="w-3 h-3" />
