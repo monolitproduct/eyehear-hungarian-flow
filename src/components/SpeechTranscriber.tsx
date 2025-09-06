@@ -97,11 +97,44 @@ const SpeechTranscriber: React.FC = () => {
         
         // Auto-stop at 30 minutes
         if (duration >= MAX_SESSION_DURATION) {
-          stopListening();
+          // Call resetToLandingView after it's defined
+          setTimeout(() => {
+            if (recognitionRef.current) {
+              recognitionRef.current.removeEventListener('result', handleResult as any);
+              recognitionRef.current.removeEventListener('error', handleError as any);
+              recognitionRef.current.removeEventListener('end', handleEnd as any);
+              recognitionRef.current.stop();
+              recognitionRef.current = null;
+            }
+
+            // Clear timeouts
+            if (restartTimeoutRef.current) {
+              clearTimeout(restartTimeoutRef.current);
+              restartTimeoutRef.current = null;
+            }
+
+            if (sessionTimeoutRef.current) {
+              clearTimeout(sessionTimeoutRef.current);
+              sessionTimeoutRef.current = null;
+            }
+
+            // Clear all transcription content and reset state
+            setIsListening(false);
+            setTranscript([]);
+            setCurrentInterim('');
+            setWordCount(0);
+            setSessionDuration(0);
+            setSessionStartTime(null);
+            finalizedTextRef.current = '';
+            lastInterimTextRef.current = '';
+            isRestartingRef.current = false;
+          }, 0);
+          
           toast({
             title: "Munkamenet befejezve",
             description: "30 perces maximum elérve. A felvétel automatikusan leállt.",
             variant: "destructive",
+            duration: 2000,
           });
         }
       }, 1000);
@@ -232,13 +265,15 @@ const SpeechTranscriber: React.FC = () => {
     setIsListening(false);
   }, [toast]);
 
-  // Handle speech recognition end (triggers auto-restart)
+  // Handle speech recognition end (triggers auto-restart)  
   const handleEnd = useCallback(() => {
     console.log('Speech recognition ended');
     
     if (!isRestartingRef.current && isListening) {
       console.log('Restarting recognition...');
-      restartRecognition();
+      // Will restart via restartRecognition function
+    } else if (!isListening) {
+      // If listening was stopped, will reset to landing view after stop
     }
   }, [isListening]);
 
@@ -281,6 +316,23 @@ const SpeechTranscriber: React.FC = () => {
       }
     }, 100);
   }, [isListening, createRecognition, handleResult, handleError, handleEnd]);
+
+  // Update handleEnd to actually call restartRecognition
+  useEffect(() => {
+    if (recognitionRef.current) {
+      const handleEndWithRestart = () => {
+        console.log('Speech recognition ended');
+        
+        if (!isRestartingRef.current && isListening) {
+          console.log('Restarting recognition...');
+          restartRecognition();
+        }
+      };
+      
+      recognitionRef.current.removeEventListener('end', handleEnd as any);
+      recognitionRef.current.addEventListener('end', handleEndWithRestart as any);
+    }
+  }, [isListening, restartRecognition]);
 
   // Request microphone permissions explicitly
   const requestMicrophonePermission = async (): Promise<boolean> => {
@@ -358,6 +410,39 @@ const SpeechTranscriber: React.FC = () => {
     }
   }, [isSupported, createRecognition, handleResult, handleError, handleEnd, restartRecognition, toast]);
 
+  // Reset to landing view function
+  const resetToLandingView = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.removeEventListener('result', handleResult as any);
+      recognitionRef.current.removeEventListener('error', handleError as any);
+      recognitionRef.current.removeEventListener('end', handleEnd as any);
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+
+    // Clear timeouts
+    if (restartTimeoutRef.current) {
+      clearTimeout(restartTimeoutRef.current);
+      restartTimeoutRef.current = null;
+    }
+
+    if (sessionTimeoutRef.current) {
+      clearTimeout(sessionTimeoutRef.current);
+      sessionTimeoutRef.current = null;
+    }
+
+    // Clear all transcription content and reset state
+    setIsListening(false);
+    setTranscript([]);
+    setCurrentInterim('');
+    setWordCount(0);
+    setSessionDuration(0);
+    setSessionStartTime(null);
+    finalizedTextRef.current = '';
+    lastInterimTextRef.current = '';
+    isRestartingRef.current = false;
+  }, [handleResult, handleError, handleEnd]);
+
   // Stop listening function
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
@@ -382,10 +467,12 @@ const SpeechTranscriber: React.FC = () => {
     setIsListening(false);
     isRestartingRef.current = false;
 
-    // Show save dialog if there's content
+    // Show save dialog if there's content, otherwise reset to landing view
     if (transcript.length > 0 || currentInterim.trim()) {
       setShowSaveDialog(true);
       setSaveTitle(`Átirat ${new Date().toLocaleDateString('hu-HU')} ${new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' })}`);
+    } else {
+      resetToLandingView();
     }
 
     toast({
@@ -393,7 +480,7 @@ const SpeechTranscriber: React.FC = () => {
       description: "A beszédfelismerés befejeződött.",
       duration: 2000,
     });
-  }, [transcript, currentInterim, handleResult, handleError, handleEnd, toast]);
+  }, [transcript, currentInterim, handleResult, handleError, handleEnd, toast, resetToLandingView]);
 
   // Save transcript to database
   const saveTranscript = async () => {
@@ -455,12 +542,7 @@ const SpeechTranscriber: React.FC = () => {
   const discardTranscript = () => {
     setShowSaveDialog(false);
     setSaveTitle('');
-    setTranscript([]);
-    setCurrentInterim('');
-    setWordCount(0);
-    setSessionDuration(0);
-    finalizedTextRef.current = '';
-    lastInterimTextRef.current = '';
+    resetToLandingView();
   };
 
   // Clean up on component unmount
