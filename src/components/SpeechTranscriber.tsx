@@ -557,10 +557,27 @@ const SpeechTranscriber: React.FC = () => {
                 Mentett átiratok
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="lg"
-                onClick={signOut}
-                className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300"
+                onClick={async () => {
+                  try {
+                    await signOut();
+                    toast({
+                      title: "Kijelentkezés sikeres",
+                      description: "Sikeresen kijelentkezett.",
+                    });
+                  } catch (error) {
+                    console.error('Logout error:', error);
+                    toast({
+                      title: "Kijelentkezési hiba",
+                      description: "Nem sikerült kijelentkezni. Próbálja újra.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300 relative z-10"
+                style={{ pointerEvents: 'auto' }}
               >
                 <LogOut className="w-5 h-5" />
               </Button>
@@ -585,7 +602,7 @@ const SpeechTranscriber: React.FC = () => {
                 className="flex items-center justify-center h-full text-center"
               >
                 <div className="space-y-4">
-                  <div className="flex justify-center items-center">
+                  <div className="flex justify-center items-center w-full">
                     <motion.div
                       animate={{ 
                         scale: [1, 1.06, 1]
@@ -595,11 +612,14 @@ const SpeechTranscriber: React.FC = () => {
                         repeat: Infinity,
                         ease: "easeInOut"
                       }}
-                      className="relative mic-logo-container flex justify-center items-center"
+                      className="relative mic-logo-container"
                       style={{
                         width: 'clamp(120px, min(26vw, 160px), 160px)',
                         height: 'clamp(120px, min(26vw, 160px), 160px)',
-                        transformOrigin: 'center'
+                        transformOrigin: 'center',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
                       }}
                     >
                       <svg
@@ -653,22 +673,24 @@ const SpeechTranscriber: React.FC = () => {
                           filter="url(#glow)"
                         />
                         
-                        {/* White Neon Microphone Pictogram */}
-                        <g transform="translate(100, 100)" fill="#FFFFFF" filter="url(#whiteGlow)">
+                        {/* Conventional White Microphone Pictogram */}
+                        <g transform="translate(100, 100)" fill="#FFFFFF">
                           {/* Mic Capsule */}
-                          <rect x="-8" y="-35" width="16" height="25" rx="8" stroke="#FFFFFF" strokeWidth="1" />
+                          <ellipse cx="0" cy="-20" rx="12" ry="16" fill="#FFFFFF" />
                           
-                          {/* Mic Handle */}
-                          <rect x="-6" y="-10" width="12" height="20" rx="2" stroke="#FFFFFF" strokeWidth="1" />
+                          {/* Mic Stand */}
+                          <rect x="-1.5" y="-4" width="3" height="20" fill="#FFFFFF" />
                           
                           {/* Mic Stand Base */}
-                          <rect x="-3" y="10" width="6" height="8" rx="1" stroke="#FFFFFF" strokeWidth="1" />
+                          <ellipse cx="0" cy="16" rx="18" ry="3" fill="#FFFFFF" />
                           
-                          {/* Sound Waves - White with neon glow */}
-                          <path d="M -25 -20 Q -30 -10 -25 0" stroke="#FFFFFF" strokeWidth="2" fill="none" opacity="0.8" filter="url(#whiteGlow)" />
-                          <path d="M 25 -20 Q 30 -10 25 0" stroke="#FFFFFF" strokeWidth="2" fill="none" opacity="0.8" filter="url(#whiteGlow)" />
-                          <path d="M -35 -25 Q -42 -10 -35 5" stroke="#FFFFFF" strokeWidth="1.5" fill="none" opacity="0.6" filter="url(#whiteGlow)" />
-                          <path d="M 35 -25 Q 42 -10 35 5" stroke="#FFFFFF" strokeWidth="1.5" fill="none" opacity="0.6" filter="url(#whiteGlow)" />
+                          {/* Mic Windscreen Grid */}
+                          <line x1="-8" y1="-25" x2="8" y2="-25" stroke="#0F0F17" strokeWidth="1" />
+                          <line x1="-8" y1="-20" x2="8" y2="-20" stroke="#0F0F17" strokeWidth="1" />
+                          <line x1="-8" y1="-15" x2="8" y2="-15" stroke="#0F0F17" strokeWidth="1" />
+                          <line x1="-6" y1="-30" x2="-6" y2="-10" stroke="#0F0F17" strokeWidth="1" />
+                          <line x1="0" y1="-30" x2="0" y2="-10" stroke="#0F0F17" strokeWidth="1" />
+                          <line x1="6" y1="-30" x2="6" y2="-10" stroke="#0F0F17" strokeWidth="1" />
                         </g>
                       </svg>
                       
