@@ -294,53 +294,53 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
             <div className="space-y-4">
               {transcripts.map((transcript) => (
                 <Card key={transcript.id} className="hover:shadow-md smooth-transition">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold mb-2">{transcript.title}</h3>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex items-start justify-between">
+                        <h3 className="text-lg font-semibold pr-2 flex-1 min-w-0 break-words">{transcript.title}</h3>
                         
-                        {/* Stats row */}
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            {formatDate(transcript.recorded_at)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Hash className="w-4 h-4" />
-                            {transcript.word_count} szó
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {formatDuration(transcript.duration_seconds)}
-                          </span>
+                        {/* Action buttons - mobile responsive */}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedTranscript(transcript)}
+                            className="flex items-center gap-1 text-xs px-2 py-1 h-auto"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span className="hidden sm:inline">Megtekintés</span>
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteClick(transcript)}
+                            className="flex items-center justify-center p-1 h-auto w-8"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
                         </div>
-
-                        {/* Preview text */}
-                        <p className="text-muted-foreground text-sm">
-                          {formatTranscriptPreview(transcript.content)}
-                        </p>
+                      </div>
+                      
+                      {/* Stats row - mobile responsive */}
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span className="truncate">{formatDate(transcript.recorded_at)}</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Hash className="w-3 h-3" />
+                          {transcript.word_count} szó
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {formatDuration(transcript.duration_seconds)}
+                        </span>
                       </div>
 
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedTranscript(transcript)}
-                          className="flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Megtekintés
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteClick(transcript)}
-                          className="flex items-center gap-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      {/* Preview text */}
+                      <p className="text-muted-foreground text-sm break-words">
+                        {formatTranscriptPreview(transcript.content)}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
