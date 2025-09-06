@@ -166,7 +166,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
             variant="destructive"
             size="sm"
             onClick={() => handleDeleteClick(selectedTranscript)}
-            className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300 flex items-center gap-2"
+            className="flex items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
             Törlés
@@ -306,7 +306,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                               e.stopPropagation();
                               handleDeleteClick(transcript);
                             }}
-                            className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300 flex items-center justify-center p-1 h-auto w-8"
+                            className="flex items-center justify-center p-1 h-auto w-8"
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
