@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -67,6 +68,7 @@ const SpeechTranscriber: React.FC = () => {
 
   const { toast } = useToast();
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   // Constants
   const MAX_SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
@@ -559,8 +561,28 @@ const SpeechTranscriber: React.FC = () => {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={signOut}
-                className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300"
+                onClick={async () => {
+                  try {
+                    await signOut();
+                    toast({
+                      title: "Kijelentkezés sikeres",
+                      description: "Átirányítás a bejelentkezési oldalra...",
+                      duration: 2000,
+                    });
+                    navigate('/auth');
+                  } catch (error) {
+                    console.error('Logout error:', error);
+                    toast({
+                      title: "Kijelentkezési hiba",
+                      description: "Hiba történt a kijelentkezés során",
+                      variant: "destructive",
+                      duration: 2000,
+                    });
+                  }
+                }}
+                className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300 relative z-10"
+                style={{ pointerEvents: 'auto' }}
+                type="button"
               >
                 <LogOut className="w-5 h-5" />
               </Button>
@@ -653,22 +675,20 @@ const SpeechTranscriber: React.FC = () => {
                           filter="url(#glow)"
                         />
                         
-                        {/* White Neon Microphone Pictogram */}
-                        <g transform="translate(100, 100)" fill="#FFFFFF" filter="url(#whiteGlow)">
-                          {/* Mic Capsule */}
-                          <rect x="-8" y="-35" width="16" height="25" rx="8" stroke="#FFFFFF" strokeWidth="1" />
+                        {/* Conventional White Microphone Pictogram (no glow) */}
+                        <g transform="translate(100, 100)" fill="#FFFFFF" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          {/* Mic Capsule Body - vertical rounded rectangle */}
+                          <rect x="-8" y="-28" width="16" height="35" rx="8" ry="8" fill="#FFFFFF" />
                           
-                          {/* Mic Handle */}
-                          <rect x="-6" y="-10" width="12" height="20" rx="2" stroke="#FFFFFF" strokeWidth="1" />
+                          {/* U-shaped Cradle */}
+                          <path d="M -18 8 L -18 18 Q -18 22 -14 22 L 14 22 Q 18 22 18 18 L 18 8" 
+                                fill="none" stroke="#FFFFFF" strokeWidth="2" />
                           
-                          {/* Mic Stand Base */}
-                          <rect x="-3" y="10" width="6" height="8" rx="1" stroke="#FFFFFF" strokeWidth="1" />
+                          {/* Vertical Stem */}
+                          <line x1="0" y1="22" x2="0" y2="35" stroke="#FFFFFF" strokeWidth="2" />
                           
-                          {/* Sound Waves - White with neon glow */}
-                          <path d="M -25 -20 Q -30 -10 -25 0" stroke="#FFFFFF" strokeWidth="2" fill="none" opacity="0.8" filter="url(#whiteGlow)" />
-                          <path d="M 25 -20 Q 30 -10 25 0" stroke="#FFFFFF" strokeWidth="2" fill="none" opacity="0.8" filter="url(#whiteGlow)" />
-                          <path d="M -35 -25 Q -42 -10 -35 5" stroke="#FFFFFF" strokeWidth="1.5" fill="none" opacity="0.6" filter="url(#whiteGlow)" />
-                          <path d="M 35 -25 Q 42 -10 35 5" stroke="#FFFFFF" strokeWidth="1.5" fill="none" opacity="0.6" filter="url(#whiteGlow)" />
+                          {/* Horizontal Base - pill shaped */}
+                          <rect x="-12" y="35" width="24" height="4" rx="2" ry="2" fill="#FFFFFF" />
                         </g>
                       </svg>
                       
