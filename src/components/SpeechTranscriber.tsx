@@ -585,88 +585,98 @@ const SpeechTranscriber: React.FC = () => {
                 className="flex items-center justify-center h-full text-center"
               >
                 <div className="space-y-4">
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.06, 1]
-                    }}
-                    transition={{ 
-                      duration: 2.5,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="relative mic-logo-container"
-                    style={{
-                      width: 'clamp(120px, min(26vw, 160px), 160px)',
-                      height: 'clamp(120px, min(26vw, 160px), 160px)'
-                    }}
-                  >
-                    <svg
-                      viewBox="0 0 200 200"
-                      className="w-full h-full relative z-10"
-                      role="img"
-                      aria-label="Mikrofon – élő beszédfelismerés"
+                  <div className="flex justify-center items-center">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.06, 1]
+                      }}
+                      transition={{ 
+                        duration: 2.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="relative mic-logo-container flex justify-center items-center"
+                      style={{
+                        width: 'clamp(120px, min(26vw, 160px), 160px)',
+                        height: 'clamp(120px, min(26vw, 160px), 160px)',
+                        transformOrigin: 'center'
+                      }}
                     >
-                      {/* Gradient Definitions */}
-                      <defs>
-                        <linearGradient id="micGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#FF0080" />
-                          <stop offset="100%" stopColor="#7928CA" />
-                        </linearGradient>
-                        <filter id="glow">
-                          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                          <feMerge> 
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                          </feMerge>
-                        </filter>
-                      </defs>
-                      
-                      {/* Outer Glow Circle */}
-                      <circle 
-                        cx="100" 
-                        cy="100" 
-                        r="90" 
-                        fill="none" 
-                        stroke="url(#micGradient)" 
-                        strokeWidth="2" 
-                        opacity="0.3"
-                        className="animate-pulse-ring"
-                      />
-                      
-                      {/* Main Circle */}
-                      <circle 
-                        cx="100" 
-                        cy="100" 
-                        r="70" 
-                        fill="rgba(15, 15, 23, 0.8)" 
-                        stroke="url(#micGradient)" 
-                        strokeWidth="3"
-                        filter="url(#glow)"
-                      />
-                      
-                      {/* Microphone Body */}
-                      <g transform="translate(100, 100)" fill="url(#micGradient)" filter="url(#glow)">
-                        {/* Mic Capsule */}
-                        <rect x="-8" y="-35" width="16" height="25" rx="8" />
+                      <svg
+                        viewBox="0 0 200 200"
+                        className="w-full h-full relative z-10"
+                        role="img"
+                        aria-label="Mikrofon – élő beszédfelismerés"
+                      >
+                        {/* Gradient Definitions */}
+                        <defs>
+                          <linearGradient id="micGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#FF0080" />
+                            <stop offset="100%" stopColor="#7928CA" />
+                          </linearGradient>
+                          <filter id="whiteGlow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge> 
+                              <feMergeNode in="coloredBlur"/>
+                              <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                          </filter>
+                          <filter id="glow">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                            <feMerge> 
+                              <feMergeNode in="coloredBlur"/>
+                              <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                          </filter>
+                        </defs>
                         
-                        {/* Mic Handle */}
-                        <rect x="-6" y="-10" width="12" height="20" rx="2" />
+                        {/* Outer Glow Circle */}
+                        <circle 
+                          cx="100" 
+                          cy="100" 
+                          r="90" 
+                          fill="none" 
+                          stroke="url(#micGradient)" 
+                          strokeWidth="2" 
+                          opacity="0.3"
+                          className="animate-pulse-ring"
+                        />
                         
-                        {/* Mic Stand Base */}
-                        <rect x="-3" y="10" width="6" height="8" rx="1" />
+                        {/* Main Circle */}
+                        <circle 
+                          cx="100" 
+                          cy="100" 
+                          r="70" 
+                          fill="rgba(15, 15, 23, 0.8)" 
+                          stroke="url(#micGradient)" 
+                          strokeWidth="3"
+                          filter="url(#glow)"
+                        />
                         
-                        {/* Sound Waves */}
-                        <path d="M -25 -20 Q -30 -10 -25 0" stroke="url(#micGradient)" strokeWidth="2" fill="none" opacity="0.6" />
-                        <path d="M 25 -20 Q 30 -10 25 0" stroke="url(#micGradient)" strokeWidth="2" fill="none" opacity="0.6" />
-                        <path d="M -35 -25 Q -42 -10 -35 5" stroke="url(#micGradient)" strokeWidth="1.5" fill="none" opacity="0.4" />
-                        <path d="M 35 -25 Q 42 -10 35 5" stroke="url(#micGradient)" strokeWidth="1.5" fill="none" opacity="0.4" />
-                      </g>
-                    </svg>
-                    
-                    {/* Ambient Glow Rings */}
-                    <div className="absolute inset-0 rounded-full mic-glow-ring-1"></div>
-                    <div className="absolute inset-0 rounded-full mic-glow-ring-2"></div>
-                  </motion.div>
+                        {/* White Neon Microphone Pictogram */}
+                        <g transform="translate(100, 100)" fill="#FFFFFF" filter="url(#whiteGlow)">
+                          {/* Mic Capsule */}
+                          <rect x="-8" y="-35" width="16" height="25" rx="8" stroke="#FFFFFF" strokeWidth="1" />
+                          
+                          {/* Mic Handle */}
+                          <rect x="-6" y="-10" width="12" height="20" rx="2" stroke="#FFFFFF" strokeWidth="1" />
+                          
+                          {/* Mic Stand Base */}
+                          <rect x="-3" y="10" width="6" height="8" rx="1" stroke="#FFFFFF" strokeWidth="1" />
+                          
+                          {/* Sound Waves - White with neon glow */}
+                          <path d="M -25 -20 Q -30 -10 -25 0" stroke="#FFFFFF" strokeWidth="2" fill="none" opacity="0.8" filter="url(#whiteGlow)" />
+                          <path d="M 25 -20 Q 30 -10 25 0" stroke="#FFFFFF" strokeWidth="2" fill="none" opacity="0.8" filter="url(#whiteGlow)" />
+                          <path d="M -35 -25 Q -42 -10 -35 5" stroke="#FFFFFF" strokeWidth="1.5" fill="none" opacity="0.6" filter="url(#whiteGlow)" />
+                          <path d="M 35 -25 Q 42 -10 35 5" stroke="#FFFFFF" strokeWidth="1.5" fill="none" opacity="0.6" filter="url(#whiteGlow)" />
+                        </g>
+                      </svg>
+                      
+                      {/* Ambient Glow Rings */}
+                      <div className="absolute inset-0 rounded-full mic-glow-ring-1"></div>
+                      <div className="absolute inset-0 rounded-full mic-glow-ring-2"></div>
+                    </motion.div>
+                  </div>
                   <div className="space-y-2">
                     <h2 className="text-3xl font-heading font-bold text-glow">
                       AI BESZÉDFELISMERÉS
