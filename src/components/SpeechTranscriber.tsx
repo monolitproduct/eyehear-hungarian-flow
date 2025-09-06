@@ -695,9 +695,9 @@ const SpeechTranscriber: React.FC = () => {
                 disabled={!isSupported}
                 className={`w-20 h-20 rounded-full relative overflow-hidden transition-all duration-500 ${
                   isListening 
-                    ? 'mic-button-active bg-destructive hover:bg-destructive/90 shadow-glow' 
-                    : 'bg-gradient-primary hover:shadow-neon'
-                } border-2 border-primary/30`}
+                    ? 'mic-button-active' 
+                    : 'bg-gradient-pink-purple hover:shadow-neon'
+                } border-2 border-primary/30 text-white font-bold`}
               >
                 <motion.div
                   animate={isListening ? { rotate: 360 } : { rotate: 0 }}
