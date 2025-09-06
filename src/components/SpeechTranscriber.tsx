@@ -597,8 +597,19 @@ const SpeechTranscriber: React.FC = () => {
                     }}
                     className="relative"
                   >
-                    <Mic className="w-20 h-20 mx-auto text-primary drop-shadow-lg" />
-                    <div className="absolute inset-0 w-20 h-20 mx-auto border-2 border-primary rounded-full animate-neon-pulse"></div>
+                    <div className="w-20 h-20 mx-auto relative">
+                      <Mic className="w-20 h-20 mx-auto text-white drop-shadow-lg relative z-10" style={{
+                        background: 'var(--gradient-pink-purple)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }} />
+                    </div>
+                    <div className="absolute inset-0 w-20 h-20 mx-auto border-2 rounded-full" style={{
+                      borderImage: 'linear-gradient(90deg, #FF0080, #7928CA) 1',
+                      borderImageSlice: 1,
+                      animation: 'gradient-pulse 2s ease-in-out infinite'
+                    }}></div>
                   </motion.div>
                   <div className="space-y-2">
                     <h2 className="text-3xl font-heading font-bold text-glow">
