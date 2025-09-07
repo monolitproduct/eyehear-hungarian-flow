@@ -47,7 +47,7 @@ export type Database = {
           recorded_at: string
           title: string
           updated_at: string
-          user_id: string | null
+          user_id: string
           word_count: number
         }
         Insert: {
@@ -58,7 +58,7 @@ export type Database = {
           recorded_at?: string
           title?: string
           updated_at?: string
-          user_id?: string | null
+          user_id: string
           word_count?: number
         }
         Update: {
@@ -69,7 +69,7 @@ export type Database = {
           recorded_at?: string
           title?: string
           updated_at?: string
-          user_id?: string | null
+          user_id?: string
           word_count?: number
         }
         Relationships: []

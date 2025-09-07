@@ -396,6 +396,15 @@ const SpeechTranscriber: React.FC = () => {
   }, [transcript, currentInterim, handleResult, handleError, handleEnd, toast]);
 
   // Save transcript to database
+  // Sanitize content to prevent XSS and ensure data integrity
+  const sanitizeText = (text: string): string => {
+    return text
+      .replace(/[<>]/g, '') // Remove potential HTML tags
+      .replace(/javascript:/gi, '') // Remove javascript: protocol
+      .replace(/on\w+=/gi, '') // Remove event handlers
+      .trim();
+  };
+
   const saveTranscript = async () => {
     const fullContent = finalizedTextRef.current + (currentInterim ? ' ' + currentInterim : '');
     
@@ -420,11 +429,26 @@ const SpeechTranscriber: React.FC = () => {
     }
 
     try {
+      // Sanitize inputs before saving
+      const sanitizedContent = sanitizeText(fullContent);
+      const sanitizedTitle = sanitizeText(saveTitle || 'Mentett átirat');
+      
+      // Validate content length
+      if (sanitizedContent.length > 50000) {
+        toast({
+          title: "Túl hosszú tartalom",
+          description: "Az átirat túl hosszú a mentéshez.",
+          variant: "destructive",
+          duration: 2000,
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('transcripts')
         .insert([{
-          title: saveTitle || 'Mentett átirat',
-          content: fullContent.trim(),
+          title: sanitizedTitle,
+          content: sanitizedContent,
           word_count: wordCount + (currentInterim ? currentInterim.split(' ').filter(w => w.length > 0).length : 0),
           duration_seconds: Math.floor(sessionDuration / 1000),
           user_id: user.id,
