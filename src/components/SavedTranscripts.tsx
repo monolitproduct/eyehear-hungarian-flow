@@ -148,9 +148,15 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
   // Render detailed view of selected transcript
   if (selectedTranscript) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        {/* Header */}
-        <header className="header-gradient border-b border-border p-4 sticky top-0 z-10">
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="fixed inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 animate-gradient-pulse"></div>
+        <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-accent/3 to-secondary/5 animate-pulse"></div>
+        
+        {/* Content Container */}
+        <div className="relative z-10 flex flex-col min-h-screen">
+          {/* Header */}
+          <header className="header-gradient border-b border-border p-4 sticky top-0 z-20 backdrop-blur-sm bg-background/80">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Button
             variant="ghost"
@@ -174,13 +180,13 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
         </div>
         </header>
 
-        {/* Transcript content */}
-        <main className="flex-1 p-4 overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card>
-                <CardContent className="p-4 flex items-center gap-3">
+          {/* Transcript content */}
+          <main className="flex-1 p-4 overflow-y-auto">
+            <div className="max-w-4xl mx-auto">
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 rounded-xl">
+                  <CardContent className="p-4 flex items-center gap-3">
                   <Hash className="w-5 h-5 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Szavak száma</p>
@@ -189,61 +195,68 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-primary" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Időtartam</p>
-                    <p className="text-lg font-semibold">{formatDuration(selectedTranscript.duration_seconds)}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 rounded-xl">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Időtartam</p>
+                      <p className="text-lg font-semibold">{formatDuration(selectedTranscript.duration_seconds)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Rögzítés dátuma</p>
-                    <p className="text-lg font-semibold">
-                      {new Date(selectedTranscript.recorded_at).toLocaleDateString('hu-HU', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }).replace(/\//g, '. ').replace(',', '')}
-                    </p>
+                <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 rounded-xl">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Rögzítés dátuma</p>
+                      <p className="text-lg font-semibold">
+                        {new Date(selectedTranscript.recorded_at).toLocaleDateString('hu-HU', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }).replace(/\//g, '. ').replace(',', '')}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+            </div>
+
+              {/* Full transcript */}
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg rounded-xl">
+                <CardHeader>
+                  <CardTitle>Teljes átirat</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {formatTranscriptText(selectedTranscript.content).map((chunk, index) => (
+                      <div key={index} className="transcript-vibrant">
+                        {chunk}
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             </div>
-
-            {/* Full transcript */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Teljes átirat</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {formatTranscriptText(selectedTranscript.content).map((chunk, index) => (
-                    <div key={index} className="transcript-vibrant">
-                      {chunk}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     );
   }
 
   // Render list view
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="header-gradient border-b border-border p-4 sticky top-0 z-10">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 animate-gradient-pulse"></div>
+      <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-accent/3 to-secondary/5 animate-pulse"></div>
+      
+      {/* Content Container */}
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Header */}
+        <header className="header-gradient border-b border-border p-4 sticky top-0 z-20 backdrop-blur-sm bg-background/80">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
@@ -265,9 +278,9 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="flex-1 p-4 overflow-y-auto">
-        <div className="max-w-4xl mx-auto">
+        {/* Main content */}
+        <main className="flex-1 p-4 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
@@ -289,10 +302,14 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
-              {transcripts.map((transcript) => (
-                <Card key={transcript.id} className="hover:shadow-md smooth-transition cursor-pointer" onClick={() => setSelectedTranscript(transcript)}>
-                  <CardContent className="p-4 sm:p-6">
+              <div className="space-y-6">
+                {transcripts.map((transcript) => (
+                  <Card 
+                    key={transcript.id} 
+                    className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 cursor-pointer rounded-xl group" 
+                    onClick={() => setSelectedTranscript(transcript)}
+                  >
+                    <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col space-y-3">
                       <div className="flex items-start justify-between">
                         <h3 className="text-lg font-semibold pr-2 flex-1 min-w-0 break-words">{transcript.title}</h3>
@@ -334,17 +351,18 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                         {formatTranscriptPreview(transcript.content)}
                       </p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
 
       {/* Delete confirmation dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
+        <DialogContent className="bg-card/90 backdrop-blur-sm border-border/50 rounded-xl">
           <DialogHeader>
             <DialogTitle>Átirat törlése</DialogTitle>
             <DialogDescription>
