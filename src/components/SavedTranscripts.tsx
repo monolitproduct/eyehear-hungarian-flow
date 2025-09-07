@@ -148,13 +148,9 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
   // Render detailed view of selected transcript
   if (selectedTranscript) {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Animated Background */}
-        <div className="fixed inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 animate-gradient-pulse"></div>
-        <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-accent/3 to-secondary/5 animate-pulse"></div>
-        
-        {/* Content Container */}
-        <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative min-h-[100dvh]">
+        <div className="pointer-events-none absolute inset-0 bg-animated-gradient opacity-70" />
+        <div className="relative mx-auto max-w-5xl px-4 py-8">
           {/* Header */}
           <header className="header-gradient border-b border-border p-4 sticky top-0 z-20 backdrop-blur-sm bg-background/80">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -248,13 +244,9 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
 
   // Render list view
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-background via-background/95 to-primary/5 animate-gradient-pulse"></div>
-      <div className="fixed inset-0 bg-gradient-to-tr from-transparent via-accent/3 to-secondary/5 animate-pulse"></div>
-      
-      {/* Content Container */}
-      <div className="relative z-10 flex flex-col min-h-screen">
+    <div className="relative min-h-[100dvh]">
+      <div className="pointer-events-none absolute inset-0 bg-animated-gradient opacity-70" />
+      <div className="relative mx-auto max-w-5xl px-4 py-8">
         {/* Header */}
         <header className="header-gradient border-b border-border p-4 sticky top-0 z-20 backdrop-blur-sm bg-background/80">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -302,17 +294,16 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
               </div>
             </div>
           ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {transcripts.map((transcript) => (
-                  <Card 
+                  <div 
                     key={transcript.id} 
-                    className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 cursor-pointer rounded-xl group" 
+                    className="rounded-xl border border-white/10 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm shadow-sm hover:shadow-md transition transform-gpu hover:-translate-y-[1px] hover:shadow-black/20 dark:hover:shadow-black/40 cursor-pointer p-4 md:p-5" 
                     onClick={() => setSelectedTranscript(transcript)}
                   >
-                    <CardContent className="p-4 sm:p-6">
                     <div className="flex flex-col space-y-3">
                       <div className="flex items-start justify-between">
-                        <h3 className="text-lg font-semibold pr-2 flex-1 min-w-0 break-words">{transcript.title}</h3>
+                        <h3 className="text-base font-medium text-foreground pr-2 flex-1 min-w-0 break-words">{transcript.title}</h3>
                         
                         {/* Delete button only */}
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -351,8 +342,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                         {formatTranscriptPreview(transcript.content)}
                       </p>
                     </div>
-                    </CardContent>
-                  </Card>
+                  </div>
                 ))}
               </div>
             )}
