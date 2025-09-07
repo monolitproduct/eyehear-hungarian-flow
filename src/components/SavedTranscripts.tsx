@@ -149,7 +149,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
   if (selectedTranscript) {
     return (
       <div className="relative min-h-[100dvh]">
-        <div className="pointer-events-none absolute inset-0 bg-animated-gradient opacity-70" />
+        <div className="pointer-events-none absolute inset-0 bg-animated-purple opacity-75" />
         <div className="relative mx-auto max-w-5xl px-4 py-8">
           {/* Header */}
           <header className="header-gradient border-b border-border p-4 sticky top-0 z-20 backdrop-blur-sm bg-background/80">
@@ -245,7 +245,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
   // Render list view
   return (
     <div className="relative min-h-[100dvh]">
-      <div className="pointer-events-none absolute inset-0 bg-animated-gradient opacity-70" />
+      <div className="pointer-events-none absolute inset-0 bg-animated-purple opacity-75" />
       <div className="relative mx-auto max-w-5xl px-4 py-8">
         {/* Header */}
         <header className="header-gradient border-b border-border p-4 sticky top-0 z-20 backdrop-blur-sm bg-background/80">
@@ -298,12 +298,12 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                 {transcripts.map((transcript) => (
                   <div 
                     key={transcript.id} 
-                    className="rounded-xl border border-white/10 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-sm shadow-sm hover:shadow-md transition transform-gpu hover:-translate-y-[1px] hover:shadow-black/20 dark:hover:shadow-black/40 cursor-pointer p-4 md:p-5" 
+                    className="rounded-xl border border-white/20 bg-white/10 dark:bg-black/20 backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_24px_rgba(147,51,234,0.3)] dark:hover:shadow-[0_8px_24px_rgba(236,72,153,0.3)] transition-all duration-300 transform-gpu hover:scale-[1.01] cursor-pointer p-4 md:p-5" 
                     onClick={() => setSelectedTranscript(transcript)}
                   >
                     <div className="flex flex-col space-y-3">
                       <div className="flex items-start justify-between">
-                        <h3 className="text-base font-medium text-foreground pr-2 flex-1 min-w-0 break-words">{transcript.title}</h3>
+                        <h3 className="text-base font-semibold text-purple-100 dark:text-pink-100 pr-2 flex-1 min-w-0 break-words">{transcript.title}</h3>
                         
                         {/* Delete button only */}
                         <div className="flex items-center gap-1 flex-shrink-0">
@@ -322,7 +322,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                       </div>
                       
                       {/* Stats row - mobile responsive */}
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-300 dark:text-neutral-400">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           <span className="truncate">{formatDate(transcript.recorded_at)}</span>
@@ -338,7 +338,7 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
                       </div>
 
                       {/* Preview text */}
-                      <p className="text-muted-foreground text-sm break-words">
+                      <p className="text-neutral-200 dark:text-neutral-300 text-sm break-words">
                         {formatTranscriptPreview(transcript.content)}
                       </p>
                     </div>
