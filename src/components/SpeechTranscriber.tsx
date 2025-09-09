@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mic, MicOff, Save, FileText, Clock, Hash, Zap, LogOut } from 'lucide-react';
+import { Mic, MicOff, Save, FileText, Clock, Hash, Zap, LogOut, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -581,6 +581,16 @@ const SpeechTranscriber: React.FC = () => {
               >
                 <FileText className="w-5 h-5 mr-2" />
                 Mentett átiratok
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate('/privacy')}
+                className="glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300 relative z-10"
+                style={{ pointerEvents: 'auto' }}
+                type="button"
+              >
+                <Shield className="w-5 h-5" />
               </Button>
               <Button
                 variant="outline"
