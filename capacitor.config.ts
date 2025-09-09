@@ -9,12 +9,14 @@ const config: CapacitorConfig = {
       enabled: true
     }
   },
-  server: {
+  server: process.env.NODE_ENV === 'development' ? {
     url: 'https://9f6d2239-d117-4792-964a-0f73a0226ebb.lovableproject.com?forceHideBadge=true',
     cleartext: true,
     allowNavigation: [
       'https://9f6d2239-d117-4792-964a-0f73a0226ebb.lovableproject.com'
     ]
+  } : {
+    cleartext: false
   },
   ios: {
     contentInset: 'automatic',
