@@ -1,0 +1,3 @@
+/* Localization strings for Hungarian */
+NSMicrophoneUsageDescription = "Az EyeHear a mikrofonhoz fér hozzá, hogy a beszédét rögzítse és azonnal feliratozza.";
+NSSpeechRecognitionUsageDescription = "Az EyeHear az Apple beszédfelismerését használja a valós idejű átirathoz; a hang részben az Apple szervereire kerül feldolgozás céljából.";

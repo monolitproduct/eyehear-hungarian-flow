@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { t } from '@/i18n';
 
 // TypeScript definitions for Web Speech API errors
 interface SpeechRecognitionErrorEvent extends Event {
@@ -210,7 +211,7 @@ export const usePermissions = () => {
     if (window.location.protocol === 'capacitor:') {
       // In Capacitor app, we could use a native plugin to open settings
       // For now, show an alert with instructions
-      alert('Kérjük, nyissa meg a Beállítások > EyeHear > Engedélyek menüt a mikrofonhoz és beszédfelismeréshez való hozzáférés engedélyezéséhez.');
+      alert(t('permissions.openAppSettings') + ' - iOS beállítások szükségesek.');
     } else {
       // In web browser, show instructions
       alert('Kérjük, frissítse az oldalt és engedélyezze a mikrofont és beszédfelismerést a felugró ablakokban.');

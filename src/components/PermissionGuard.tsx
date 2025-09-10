@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useNavigate } from 'react-router-dom';
+import { t } from '@/i18n';
 
 interface PermissionGuardProps {
   children: React.ReactNode;
@@ -39,7 +40,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full"
           />
-          <p className="mt-4 text-purple-100 text-center">Engedélyek ellenőrzése...</p>
+          <p className="mt-4 text-purple-100 text-center">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -96,24 +97,23 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                   <Mic className="w-12 h-12 text-purple-300" />
                   <MessageSquare className="w-12 h-12 text-pink-300" />
                 </div>
-                <CardTitle className="text-2xl text-purple-100">Üdvözöljük az EyeHear-ben!</CardTitle>
+                <CardTitle className="text-2xl text-purple-100">{t('onboarding.title')}</CardTitle>
                 <CardDescription className="text-neutral-300 text-base leading-relaxed">
-                  Az EyeHear élő beszédátírást biztosít magyar nyelvhez. 
-                  Engedélyezni fogjuk a mikrofont és beszédfelismerést a pontos átírás érdekében.
+                  {t('onboarding.subtitle')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3 text-sm text-neutral-200">
+                  <div className="space-y-3 text-sm text-neutral-200">
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
                     <Mic className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-purple-200">Mikrofon hozzáférés:</strong> A beszéd rögzítéséhez szükséges
+                      <strong className="text-purple-200">{t('permissions.microphone')} hozzáférés:</strong> A beszéd rögzítéséhez szükséges
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
                     <MessageSquare className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-purple-200">Beszédfelismerés:</strong> Az Apple szolgáltatásai segítségével történik az átírás
+                      <strong className="text-purple-200">{t('permissions.speech')}:</strong> Az Apple szolgáltatásai segítségével történik az átírás
                     </div>
                   </div>
                 </div>
@@ -126,7 +126,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                   className="w-full"
                   size="lg"
                 >
-                  Folytatás
+                  {t('onboarding.continue')}
                 </Button>
               </CardContent>
             </Card>
@@ -162,9 +162,9 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
               <Card className="border border-red-500/20 bg-red-500/5 backdrop-blur-md">
                 <CardHeader className="text-center">
                   <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                  <CardTitle className="text-2xl text-red-300">Engedélyek szükségesek</CardTitle>
+                  <CardTitle className="text-2xl text-red-300">{t('permissions.denied.title')}</CardTitle>
                   <CardDescription className="text-neutral-300">
-                    Az EyeHear nem tud átírást készíteni a szükséges engedélyek nélkül.
+                    {t('permissions.explain')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -172,7 +172,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                     <Alert className="border-red-500/20 bg-red-500/10">
                       <Mic className="h-4 w-4 text-red-400" />
                       <AlertDescription className="text-red-300">
-                        Mikrofon hozzáférés megtagadva
+                        {t('permissions.denied.body.mic')}
                       </AlertDescription>
                     </Alert>
                   )}
@@ -181,7 +181,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                     <Alert className="border-red-500/20 bg-red-500/10">
                       <MessageSquare className="h-4 w-4 text-red-400" />
                       <AlertDescription className="text-red-300">
-                        Beszédfelismerés hozzáférés megtagadva
+                        {t('permissions.denied.body.speech')}
                       </AlertDescription>
                     </Alert>
                   )}
@@ -193,7 +193,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                       className="w-full flex items-center gap-2"
                     >
                       <Settings className="w-4 h-4" />
-                      Beállítások megnyitása
+                      {t('permissions.openSettings')}
                     </Button>
                     
                     <Button 
@@ -202,7 +202,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                       className="w-full flex items-center gap-2 text-purple-200"
                     >
                       <RefreshCw className="w-4 h-4" />
-                      Újrapróbálás
+                      {t('common.retry')}
                     </Button>
                     
                     <Button 
@@ -212,7 +212,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                       className="text-neutral-400 hover:text-purple-200"
                     >
                       <Shield className="w-4 h-4 mr-2" />
-                      Miért szükségesek ezek az engedélyek?
+                      {t('permissions.whyWeNeedThis')}
                     </Button>
                   </div>
                 </CardContent>
@@ -225,7 +225,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                     <Mic className="w-12 h-12 text-purple-300" />
                     <MessageSquare className="w-12 h-12 text-pink-300" />
                   </div>
-                  <CardTitle className="text-2xl text-purple-100">Engedélyek kérése</CardTitle>
+                  <CardTitle className="text-2xl text-purple-100">{t('permissions.title')}</CardTitle>
                   <CardDescription className="text-neutral-300">
                     Kattintson az "Engedélyek megadása" gombra, majd engedélyezze a mikrofont és beszédfelismerést a böngésző felugró ablakokban.
                   </CardDescription>
@@ -237,7 +237,7 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
                     size="lg"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Engedélyek kérése...' : 'Engedélyek megadása'}
+                    {isLoading ? 'Engedélyek kérése...' : t('permissions.request')}
                   </Button>
                   
                   <Button 

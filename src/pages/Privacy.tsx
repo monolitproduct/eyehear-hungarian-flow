@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { exportUserData, deleteAllUserData, deleteUserAccount, downloadUserData } from '@/lib/privacy';
 import { useAuth } from '@/hooks/useAuth';
+import { t } from '@/i18n';
 
 export default function Privacy() {
   const navigate = useNavigate();
@@ -19,8 +20,8 @@ export default function Privacy() {
   const handleExportData = async () => {
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please sign in to export your data.",
+        title: t('errors.permissionDenied'),
+        description: t('privacy.authRequired'),
         variant: "destructive",
       });
       return;
@@ -32,16 +33,16 @@ export default function Privacy() {
       if (data) {
         downloadUserData(data);
         toast({
-          title: "Data Exported",
-          description: "Your data has been downloaded as a JSON file.",
+          title: t('privacy.export.success'),
+          description: t('privacy.export.success'),
         });
       } else {
         throw new Error('Failed to export data');
       }
     } catch (error) {
       toast({
-        title: "Export Failed",
-        description: "There was an error exporting your data. Please try again.",
+        title: t('privacy.export.failed'),
+        description: t('privacy.export.failed'),
         variant: "destructive",
       });
     } finally {
@@ -52,8 +53,8 @@ export default function Privacy() {
   const handleDeleteData = async () => {
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please sign in to delete your data.",
+        title: t('errors.permissionDenied'),
+        description: t('privacy.authRequired'),
         variant: "destructive",
       });
       return;
@@ -64,16 +65,16 @@ export default function Privacy() {
       const success = await deleteAllUserData();
       if (success) {
         toast({
-          title: "Data Deleted",
-          description: "All your transcripts have been permanently deleted.",
+          title: t('privacy.delete.success'),
+          description: t('privacy.delete.success'),
         });
       } else {
         throw new Error('Failed to delete data');
       }
     } catch (error) {
       toast({
-        title: "Deletion Failed",
-        description: "There was an error deleting your data. Please try again.",
+        title: t('privacy.delete.failed'),
+        description: t('privacy.delete.failed'),
         variant: "destructive",
       });
     } finally {
@@ -84,8 +85,8 @@ export default function Privacy() {
   const handleDeleteAccount = async () => {
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please sign in to delete your account.",
+        title: t('errors.permissionDenied'),
+        description: t('privacy.authRequired'),
         variant: "destructive",
       });
       return;
@@ -96,8 +97,8 @@ export default function Privacy() {
       const success = await deleteUserAccount();
       if (success) {
         toast({
-          title: "Account Data Deleted",
-          description: "Your account data has been deleted. Please contact support to complete account removal.",
+          title: t('privacy.account.delete.success'),
+          description: t('privacy.account.delete.success'),
         });
         // Navigate to auth page after successful deletion
         navigate('/auth');
@@ -106,8 +107,8 @@ export default function Privacy() {
       }
     } catch (error) {
       toast({
-        title: "Account Deletion Failed",
-        description: "There was an error deleting your account. Please try again.",
+        title: t('privacy.account.delete.failed'),
+        description: t('privacy.account.delete.failed'),
         variant: "destructive",
       });
     } finally {
@@ -123,21 +124,21 @@ export default function Privacy() {
           <div className="flex items-center gap-3 mb-6">
             <Button variant="outline" size="sm" onClick={() => navigate('/')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              {t('common.back')}
             </Button>
-            <h1 className="text-2xl font-bold text-purple-100">Privacy & Data</h1>
+            <h1 className="text-2xl font-bold text-purple-100">{t('privacy.title')}</h1>
           </div>
           
           <Card className="border border-white/20 bg-white/10 dark:bg-black/20 backdrop-blur-md">
             <CardHeader>
-              <CardTitle className="text-purple-100">Authentication Required</CardTitle>
+              <CardTitle className="text-purple-100">{t('errors.permissionDenied')}</CardTitle>
               <CardDescription className="text-neutral-300">
-                Please sign in to access privacy settings and manage your data.
+                {t('privacy.authRequired')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => navigate('/auth')}>
-                Sign In
+                Bejelentkezés
               </Button>
             </CardContent>
           </Card>
@@ -154,9 +155,9 @@ export default function Privacy() {
         <div className="flex items-center gap-3 mb-6">
           <Button variant="outline" size="sm" onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            {t('common.back')}
           </Button>
-          <h1 className="text-2xl font-bold text-purple-100">Privacy & Data</h1>
+          <h1 className="text-2xl font-bold text-purple-100">{t('privacy.title')}</h1>
         </div>
 
         <div className="space-y-6">
@@ -165,10 +166,10 @@ export default function Privacy() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-purple-100">
                 <Shield className="w-5 h-5" />
-                Privacy Information
+                {t('privacy.speechNotice.title')}
               </CardTitle>
               <CardDescription className="text-neutral-300">
-                Learn how EyeHear handles your data and privacy.
+                {t('privacy.speechNotice.body')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -176,22 +177,22 @@ export default function Privacy() {
                 <div className="flex items-start gap-2">
                   <Info className="w-4 h-4 mt-0.5 text-blue-400 flex-shrink-0" />
                   <div>
-                    <strong>Speech Recognition:</strong> EyeHear uses Apple's speech recognition service. 
-                    Your audio may be sent to Apple's servers for processing. This follows Apple's privacy policy.
+                    <strong>Beszédfelismerés:</strong> Az EyeHear az Apple beszédfelismerési szolgáltatását használja. 
+                    A hanganyag az Apple szervereire kerülhet feldolgozás céljából. Ez az Apple adatvédelmi irányelvei szerint történik.
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <Info className="w-4 h-4 mt-0.5 text-blue-400 flex-shrink-0" />
                   <div>
-                    <strong>Data Storage:</strong> Your transcripts and profile are securely stored in our database. 
-                    You control your data and can export or delete it at any time.
+                    <strong>Adattárolás:</strong> Az átiratok és profiladatok biztonságosan tárolódnak az adatbázisunkban. 
+                    Ön bármikor exportálhatja vagy törölheti adatait.
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <Info className="w-4 h-4 mt-0.5 text-blue-400 flex-shrink-0" />
                   <div>
-                    <strong>No Tracking:</strong> EyeHear does not track you across other apps or websites 
-                    for advertising purposes.
+                    <strong>Nincs követés:</strong> Az EyeHear nem követi Önt más alkalmazásokban vagy weboldalakon 
+                    reklám célokból.
                   </div>
                 </div>
               </div>
@@ -204,7 +205,7 @@ export default function Privacy() {
                   className="flex items-center justify-center gap-2"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  View Full Privacy Policy
+                  {t('privacy.links.privacyPolicy')}
                 </a>
               </Button>
             </CardContent>
@@ -213,18 +214,18 @@ export default function Privacy() {
           {/* Data Management */}
           <Card className="border border-white/20 bg-white/10 dark:bg-black/20 backdrop-blur-md">
             <CardHeader>
-              <CardTitle className="text-purple-100">Your Data</CardTitle>
+              <CardTitle className="text-purple-100">{t('privacy.dataRights.title')}</CardTitle>
               <CardDescription className="text-neutral-300">
-                Export or delete your personal data stored in EyeHear.
+                Exportálja vagy törölje az EyeHear-ben tárolt személyes adatait.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Export Data */}
               <div className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-white/5">
                 <div>
-                  <h3 className="font-medium text-purple-100">Export My Data</h3>
+                  <h3 className="font-medium text-purple-100">{t('privacy.dataRights.export')}</h3>
                   <p className="text-sm text-neutral-300">
-                    Download all your transcripts and profile data as a JSON file.
+                    Töltse le az összes átiratot és profiladatot JSON fájlként.
                   </p>
                 </div>
                 <Button 
@@ -233,40 +234,40 @@ export default function Privacy() {
                   className="flex items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
-                  {isExporting ? 'Exporting...' : 'Export'}
+                  {isExporting ? 'Exportálás...' : 'Exportálás'}
                 </Button>
               </div>
 
               {/* Delete Data */}
               <div className="flex items-center justify-between p-4 rounded-lg border border-white/10 bg-white/5">
                 <div>
-                  <h3 className="font-medium text-purple-100">Delete My Transcripts</h3>
+                  <h3 className="font-medium text-purple-100">Átiratok törlése</h3>
                   <p className="text-sm text-neutral-300">
-                    Permanently delete all your saved transcripts. This cannot be undone.
+                    Az összes mentett átirat végleges törlése. Ez a művelet nem vonható vissza.
                   </p>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="flex items-center gap-2">
                       <Trash2 className="w-4 h-4" />
-                      Delete Data
+                      {t('privacy.dataRights.deleteData')}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete All Transcripts</AlertDialogTitle>
+                      <AlertDialogTitle>{t('privacy.delete.confirmTitle')}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete all your saved transcripts.
+                        {t('privacy.delete.confirmBody')}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                       <AlertDialogAction 
                         onClick={handleDeleteData}
                         disabled={isDeleting}
                         className="bg-red-600 hover:bg-red-700"
                       >
-                        {isDeleting ? 'Deleting...' : 'Delete All Transcripts'}
+                        {isDeleting ? 'Törlés...' : t('privacy.delete.confirmYes')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -276,34 +277,34 @@ export default function Privacy() {
               {/* Delete Account */}
               <div className="flex items-center justify-between p-4 rounded-lg border border-red-500/20 bg-red-500/5">
                 <div>
-                  <h3 className="font-medium text-red-300">Delete My Account</h3>
+                  <h3 className="font-medium text-red-300">{t('privacy.dataRights.deleteAccount')}</h3>
                   <p className="text-sm text-neutral-300">
-                    Permanently delete your account and all associated data.
+                    A fiók és az összes kapcsolódó adat végleges törlése.
                   </p>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4" />
-                      Delete Account
+                      {t('privacy.dataRights.deleteAccount')}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Account</AlertDialogTitle>
+                      <AlertDialogTitle>{t('privacy.account.delete.confirmTitle')}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your account, 
-                        profile, and all transcripts. You may need to contact support to complete the process.
+                        Ez a művelet nem vonható vissza. Ezzel véglegesen törli a fiókját, 
+                        profiladatait és az összes átiratot. Lehetséges, hogy kapcsolatba kell lépnie az ügyfélszolgálattal a folyamat befejezéséhez.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                       <AlertDialogAction 
                         onClick={handleDeleteAccount}
                         disabled={isDeletingAccount}
                         className="bg-red-600 hover:bg-red-700"
                       >
-                        {isDeletingAccount ? 'Deleting...' : 'Delete Account'}
+                        {isDeletingAccount ? 'Törlés...' : 'Fiók törlése'}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -315,9 +316,9 @@ export default function Privacy() {
           {/* Contact & Support */}
           <Card className="border border-white/20 bg-white/10 dark:bg-black/20 backdrop-blur-md">
             <CardHeader>
-              <CardTitle className="text-purple-100">Support & Contact</CardTitle>
+              <CardTitle className="text-purple-100">{t('privacy.dataRights.contactSupport')}</CardTitle>
               <CardDescription className="text-neutral-300">
-                Need help with privacy or data questions?
+                Segítségre van szüksége adatvédelmi vagy adatkezelési kérdésekben?
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -327,7 +328,7 @@ export default function Privacy() {
                   className="flex items-center justify-center gap-2"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  Contact Support
+                  {t('privacy.dataRights.contactSupport')}
                 </a>
               </Button>
             </CardContent>
