@@ -138,7 +138,7 @@ export default function Privacy() {
             </CardHeader>
             <CardContent>
               <Button onClick={() => navigate('/auth')}>
-                Bejelentkezés
+                {t('auth.login.title')}
               </Button>
             </CardContent>
           </Card>

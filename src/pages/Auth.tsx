@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mic, Eye } from 'lucide-react';
+import { t } from '@/i18n';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -44,13 +45,13 @@ export default function Auth() {
       if (error) {
         if (error.message.includes('already registered')) {
           toast({
-            title: "Account létezik",
-            description: "Ez az email cím már regisztrálva van. Próbálja meg a bejelentkezést.",
+            title: t('auth.account.exists'),
+            description: t('auth.account.exists.description'),
             duration: 2000,
           });
         } else {
           toast({
-            title: "Hiba",
+            title: t('errors.error'),
             description: error.message,
             variant: "destructive",
             duration: 2000,
@@ -58,15 +59,15 @@ export default function Auth() {
         }
       } else {
         toast({
-          title: "Regisztráció sikeres!",
-          description: "Ellenőrizze email fiókját a megerősítő linkért.",
+          title: t('auth.register.success'),
+          description: t('auth.register.success.description'),
           duration: 2000,
         });
       }
     } catch (error) {
       toast({
-        title: "Hiba",
-        description: "Váratlan hiba történt",
+        title: t('errors.error'),
+        description: t('errors.unexpected'),
         variant: "destructive",
         duration: 2000,
       });
@@ -87,23 +88,23 @@ export default function Auth() {
 
       if (error) {
         toast({
-          title: "Bejelentkezési hiba",
-          description: "Helytelen email vagy jelszó",
+          title: t('auth.login.error'),
+          description: t('auth.login.error.description'),
           variant: "destructive",
           duration: 2000,
         });
       } else {
         toast({
-          title: "Sikeres bejelentkezés!",
-          description: "Átirányítás...",
+          title: t('auth.login.success'),
+          description: t('auth.login.success.description'),
           duration: 2000,
         });
         navigate('/');
       }
     } catch (error) {
       toast({
-        title: "Hiba",
-        description: "Váratlan hiba történt",
+        title: t('errors.error'),
+        description: t('errors.unexpected'),
         variant: "destructive",
         duration: 2000,
       });
@@ -139,7 +140,7 @@ export default function Auth() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            EyeHear
+            {t('app.name')}
           </motion.h1>
           <motion.p 
             className="text-sm text-muted-foreground"
@@ -147,22 +148,22 @@ export default function Auth() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            Magyar nyelvű beszédfelismerő AI
+            {t('app.tagline')}
           </motion.p>
         </div>
 
         <Card className="glass-card">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Belépés</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('auth.welcome')}</CardTitle>
             <CardDescription className="text-center">
-              Jelentkezzen be a beszédfelismerés használatához
+              {t('auth.login.subtitle')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Bejelentkezés</TabsTrigger>
-                <TabsTrigger value="signup">Regisztráció</TabsTrigger>
+                <TabsTrigger value="signin">{t('auth.login.title')}</TabsTrigger>
+                <TabsTrigger value="signup">{t('auth.register.title')}</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin">
@@ -179,7 +180,7 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Jelszó</Label>
+                    <Label htmlFor="password">{t('common.password')}</Label>
                     <Input
                       id="password"
                       type="password"
@@ -191,7 +192,7 @@ export default function Auth() {
                   </div>
                   <Button type="submit" className="w-full bg-gradient-to-r from-[#FF0080] to-[#7928CA] hover:from-[#FF0080]/90 hover:to-[#7928CA]/90 text-white font-bold" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Bejelentkezés
+                    {t('auth.login.title')}
                   </Button>
                 </form>
               </TabsContent>
@@ -210,7 +211,7 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Jelszó</Label>
+                    <Label htmlFor="signup-password">{t('common.password')}</Label>
                     <Input
                       id="signup-password"
                       type="password"
@@ -223,7 +224,7 @@ export default function Auth() {
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Regisztráció
+                    {t('auth.register.title')}
                   </Button>
                 </form>
               </TabsContent>

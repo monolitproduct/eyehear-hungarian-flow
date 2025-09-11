@@ -6,6 +6,7 @@ import { ArrowLeft, Trash2, Calendar, Clock, Hash, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { t } from '@/i18n';
 
 // TypeScript interface for transcript data
 interface Transcript {
@@ -40,8 +41,8 @@ const SavedTranscripts: React.FC<SavedTranscriptsProps> = ({ onBack }) => {
   const loadTranscripts = async () => {
     if (!user) {
       toast({
-        title: "Bejelentkezés szükséges",
-        description: "Jelentkezzen be a mentett átiratok megtekintéséhez",
+        title: t('auth.login.required'),
+        description: t('auth.login.required.transcripts'),
         variant: "destructive",
         duration: 2000,
       });

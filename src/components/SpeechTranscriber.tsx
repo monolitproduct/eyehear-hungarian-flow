@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import SavedTranscripts from './SavedTranscripts';
+import { t } from '@/i18n';
 
 // TypeScript interfaces for data structures
 interface TranscriptSegment {
@@ -420,8 +421,8 @@ const SpeechTranscriber: React.FC = () => {
 
     if (!user) {
       toast({
-        title: "Bejelentkezés szükséges",
-        description: "Jelentkezzen be a mentéshez",
+        title: t('auth.login.required'),
+        description: t('auth.login.required.save'),
         variant: "destructive",
         duration: 2000,
       });
@@ -611,16 +612,16 @@ const SpeechTranscriber: React.FC = () => {
                     try {
                       await signOut();
                       toast({
-                        title: "Kijelentkezés sikeres",
-                        description: "Átirányítás a bejelentkezési oldalra...",
+                        title: t('auth.logout.success'),
+                        description: t('auth.logout.success.description'),
                         duration: 2000,
                       });
                       navigate('/auth');
                     } catch (error) {
                       console.error('Logout error:', error);
                       toast({
-                        title: "Kijelentkezési hiba",
-                        description: "Hiba történt a kijelentkezés során",
+                        title: t('auth.logout.error'),
+                        description: t('auth.logout.error.description'),
                         variant: "destructive",
                         duration: 2000,
                       });

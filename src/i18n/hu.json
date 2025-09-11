@@ -62,9 +62,11 @@
   "errors.network": "Hálózati hiba. Ellenőrizze a kapcsolatot.",
   "errors.permissionDenied": "Hozzáférés megtagadva.",
   "errors.localeNotSupported": "A kiválasztott nyelvjárás nem támogatott.",
-  "errors.sessionInterrupted": "A munkamenet megszakadt. Próbálja újra.",
+  "errors.sessionInterrupted": "A munkamenet megszakad. Próbálja újra.",
   "errors.audioUnavailable": "Audioforrás nem érhető el.",
   "errors.transcriptionFailed": "A feliratozás nem sikerült. Próbálja újra.",
+  "errors.error": "Hiba",
+  "errors.unexpected": "Váratlan hiba történt",
 
   "common.loading": "Betöltés…",
   "common.ok": "OK",
@@ -79,9 +81,34 @@
   "common.back": "Vissza",
   "common.next": "Tovább",
   "common.version": "Verzió",
+  "common.email": "Email",
+  "common.password": "Jelszó",
 
   "about.title": "Névjegy",
   "about.description": "Az EyeHear valós idejű magyar beszédfelismerést és feliratozást biztosít.",
   "about.terms": "Felhasználási feltételek",
-  "about.license": "Licenc"
+  "about.license": "Licenc",
+
+  "app.name": "EyeHear",
+  "app.tagline": "Magyar nyelvű beszédfelismerő AI",
+
+  "auth.login.required": "Bejelentkezés szükséges",
+  "auth.login.required.transcripts": "Jelentkezzen be a mentett átiratok megtekintéséhez",
+  "auth.login.required.save": "Jelentkezzen be a mentéshez",
+  "auth.login.title": "Bejelentkezés",
+  "auth.register.title": "Regisztráció", 
+  "auth.login.subtitle": "Jelentkezzen be a beszédfelismerés használatához",
+  "auth.login.success": "Sikeres bejelentkezés!",
+  "auth.login.success.description": "Átirányítás...",
+  "auth.login.error": "Bejelentkezési hiba",
+  "auth.login.error.description": "Helytelen email vagy jelszó",
+  "auth.logout.success": "Kijelentkezés sikeres",
+  "auth.logout.success.description": "Átirányítás a bejelentkezési oldalra...",
+  "auth.logout.error": "Kijelentkezési hiba",
+  "auth.logout.error.description": "Hiba történt a kijelentkezés során",
+  "auth.account.exists": "Account létezik",
+  "auth.account.exists.description": "Ez az email cím már regisztrálva van. Próbálja meg a bejelentkezést.",
+  "auth.register.success": "Regisztráció sikeres!",
+  "auth.register.success.description": "Ellenőrizze email fiókját a megerősítő linkért.",
+  "auth.welcome": "Belépés"
 }
