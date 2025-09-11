@@ -1,3 +1,9 @@
 /* Localization strings for Hungarian */
+/* Privacy - Microphone Usage Description */
 NSMicrophoneUsageDescription = "Az EyeHear a mikrofonhoz fér hozzá, hogy a beszédét rögzítse és azonnal feliratozza.";
+
+/* Privacy - Speech Recognition Usage Description */
 NSSpeechRecognitionUsageDescription = "Az EyeHear az Apple beszédfelismerését használja a valós idejű átirathoz; a hang részben az Apple szervereire kerül feldolgozás céljából.";
+
+/* App Display Name */
+CFBundleDisplayName = "EyeHear";

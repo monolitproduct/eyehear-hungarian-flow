@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>hu</string>
 	<key>CFBundleDisplayName</key>
 	<string>EyeHear</string>
 	<key>CFBundleExecutable</key>
@@ -20,12 +20,19 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+	</dict>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>EyeHear needs the microphone to capture your speech and display instant transcriptions.</string>
+	<string>Az EyeHear a mikrofonhoz fér hozzá, hogy a beszédét rögzítse és azonnal feliratozza.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>EyeHear uses Apple's speech recognition to transcribe your speech in real time. Your audio may be sent to Apple's servers to process the request.</string>
+	<string>Az EyeHear az Apple beszédfelismerését használja a valós idejű átirathoz; a hang részben az Apple szervereire kerül feldolgozás céljából.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
