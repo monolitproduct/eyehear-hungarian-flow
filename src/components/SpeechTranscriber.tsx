@@ -523,12 +523,12 @@ const SpeechTranscriber: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col particle-bg">
+    <div className="min-h-screen bg-background flex flex-col particle-bg overflow-x-hidden">
       {/* Futuristic Header */}
       <motion.header 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="header-gradient border-b border-border p-4 sticky top-0 z-10"
+        className="header-gradient border-b border-border pt-2 pb-2 px-4 sticky top-0 z-10"
       >
         <div className="max-w-6xl mx-auto">
           <div className="bento-grid grid-cols-1 md:grid-cols-3 gap-4 p-0">
@@ -567,60 +567,73 @@ const SpeechTranscriber: React.FC = () => {
               )}
             </AnimatePresence>
             
-            {/* Action Button */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex gap-2"
-            >
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => setShowSavedTranscripts(true)}
-                className="flex-1 glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300"
+            {/* Action Buttons - Responsive Grid Layout */}
+            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3 w-full px-4 overflow-x-hidden">
+              {/* Left: Saved Transcripts - Flexible */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="min-w-0"
               >
-                <FileText className="w-5 h-5 mr-2" />
-                Mentett átiratok
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/privacy')}
-                className="glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300 relative z-10"
-                style={{ pointerEvents: 'auto' }}
-                type="button"
+                <Button
+                  variant="outline"
+                  onClick={() => setShowSavedTranscripts(true)}
+                  className="w-full h-10 glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300 text-sm px-3"
+                >
+                  <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Mentett átiratok</span>
+                </Button>
+              </motion.div>
+
+              {/* Right: Privacy and Logout - Auto width, compact */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Shield className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={async () => {
-                  try {
-                    await signOut();
-                    toast({
-                      title: "Kijelentkezés sikeres",
-                      description: "Átirányítás a bejelentkezési oldalra...",
-                      duration: 2000,
-                    });
-                    navigate('/auth');
-                  } catch (error) {
-                    console.error('Logout error:', error);
-                    toast({
-                      title: "Kijelentkezési hiba",
-                      description: "Hiba történt a kijelentkezés során",
-                      variant: "destructive",
-                      duration: 2000,
-                    });
-                  }
-                }}
-                className="glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300 relative z-10"
-                style={{ pointerEvents: 'auto' }}
-                type="button"
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/privacy')}
+                  className="h-10 px-3 glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300 text-sm min-w-0"
+                  type="button"
+                >
+                  <Shield className="w-4 h-4 flex-shrink-0" />
+                  <span className="ml-2 hidden sm:inline">Adatvédelem</span>
+                </Button>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <LogOut className="w-5 h-5" />
-              </Button>
-            </motion.div>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await signOut();
+                      toast({
+                        title: "Kijelentkezés sikeres",
+                        description: "Átirányítás a bejelentkezési oldalra...",
+                        duration: 2000,
+                      });
+                      navigate('/auth');
+                    } catch (error) {
+                      console.error('Logout error:', error);
+                      toast({
+                        title: "Kijelentkezési hiba",
+                        description: "Hiba történt a kijelentkezés során",
+                        variant: "destructive",
+                        duration: 2000,
+                      });
+                    }
+                  }}
+                  className="h-10 px-3 glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300 text-sm min-w-0"
+                  type="button"
+                >
+                  <LogOut className="w-4 h-4 flex-shrink-0" />
+                  <span className="ml-2 hidden sm:inline">Kijelentkezés</span>
+                </Button>
+              </motion.div>
+            </div>
           </div>
         </div>
       </motion.header>
