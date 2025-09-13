@@ -11,33 +11,39 @@ import NotFound from "./pages/NotFound";
 import { AuthProvider } from "@/hooks/useAuth";
 import PermissionGuard from "@/components/PermissionGuard";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import ColdStartLoader from "@/components/ColdStartLoader";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <HashRouter>
-        <Suspense fallback={<LoadingSkeleton />}>
-          <AuthProvider>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/" element={
-                <PermissionGuard>
-                  <Index />
-                </PermissionGuard>
-              } />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </Suspense>
-      </HashRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <ColdStartLoader>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <HashRouter>
+            <Suspense fallback={<LoadingSkeleton />}>
+              <AuthProvider>
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/" element={
+                    <PermissionGuard>
+                      <Index />
+                    </PermissionGuard>
+                  } />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AuthProvider>
+            </Suspense>
+          </HashRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ColdStartLoader>
+  </ErrorBoundary>
 );
 
 export default App;
