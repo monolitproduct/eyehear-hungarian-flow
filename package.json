@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build-guard.js && vite build",
+    "build:release": "node scripts/build-guard.js && node scripts/bump-build.js && vite build",
     "build:dev": "vite build --mode development",
+    "bump-build": "node scripts/bump-build.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
