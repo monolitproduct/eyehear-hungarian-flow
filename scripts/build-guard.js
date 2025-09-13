@@ -71,12 +71,43 @@ function checkViteConfig() {
   }
 }
 
+function checkAssetPaths() {
+  const distIndexPath = path.join(__dirname, '../dist/index.html');
+  
+  if (!fs.existsSync(distIndexPath)) {
+    console.log('ℹ️ dist/index.html not found - skipping asset path check');
+    return true;
+  }
+  
+  try {
+    const indexContent = fs.readFileSync(distIndexPath, 'utf8');
+    
+    // Check for absolute asset paths
+    const absoluteAssetRegex = /(href|src)="\/assets/g;
+    const absoluteMatches = indexContent.match(absoluteAssetRegex);
+    
+    if (absoluteMatches) {
+      console.error('❌ Build guard failed - found absolute asset paths in dist/index.html:');
+      absoluteMatches.forEach(match => console.error(`  ${match}`));
+      console.error('💡 All asset URLs must start with ./assets for native WKWebView compatibility');
+      return false;
+    }
+    
+    console.log('✅ Asset paths: All assets use relative paths');
+    return true;
+  } catch (error) {
+    console.error('❌ Error checking asset paths:', error.message);
+    return false;
+  }
+}
+
 function runBuildGuards() {
   console.log('🔒 Running production build safety checks...');
   
   const checks = [
     checkCapacitorConfig(),
-    checkViteConfig()
+    checkViteConfig(),
+    checkAssetPaths()
   ];
   
   const allPassed = checks.every(check => check === true);
