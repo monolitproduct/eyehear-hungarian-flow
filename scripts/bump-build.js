@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Build Version Bumper for iOS Release Builds
+ * iOS Build Number Bumper
  * 
- * This script automatically increments the CFBundleVersion in Info.plist
- * with a timestamp-based build number for iOS App Store releases.
- * 
- * Usage: npm run bump-build
+ * Updates CFBundleVersion in iOS Info.plist to current timestamp
+ * for release builds. This ensures each release has a unique build number
+ * required for App Store submissions.
  */
 
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -18,62 +18,52 @@ const __dirname = path.dirname(__filename);
 
 const INFO_PLIST_PATH = path.join(__dirname, '../ios/App/App/Info.plist');
 
-function generateBuildNumber() {
-  // Generate timestamp-based build number: YYYYMMDDHHMM
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hour = String(now.getHours()).padStart(2, '0');
-  const minute = String(now.getMinutes()).padStart(2, '0');
-  
-  return `${year}${month}${day}${hour}${minute}`;
-}
+function bumpIOSBuildNumber() {
+  // Check if iOS Info.plist exists
+  if (!fs.existsSync(INFO_PLIST_PATH)) {
+    console.log('ℹ️ iOS Info.plist not found - skipping build number bump');
+    console.log('💡 Run "npx cap add ios" first to create iOS project');
+    return true;
+  }
 
-function bumpBuildVersion() {
   try {
-    // Check if Info.plist exists
-    if (!fs.existsSync(INFO_PLIST_PATH)) {
-      console.error(`❌ Info.plist not found at: ${INFO_PLIST_PATH}`);
-      console.log('💡 Make sure to run `npx cap add ios` first');
-      process.exit(1);
-    }
-
-    // Read the Info.plist file
-    const infoPlistContent = fs.readFileSync(INFO_PLIST_PATH, 'utf8');
+    // Generate timestamp-based build number
+    const buildNumber = Math.floor(Date.now() / 1000).toString();
     
-    // Generate new build number
-    const newBuildNumber = generateBuildNumber();
+    // Use PlistBuddy to update CFBundleVersion
+    const plistBuddyCmd = `/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${buildNumber}" "${INFO_PLIST_PATH}"`;
     
-    // Replace CFBundleVersion value
-    const updatedContent = infoPlistContent.replace(
-      /<key>CFBundleVersion<\/key>\s*<string>.*?<\/string>/,
-      `<key>CFBundleVersion</key>\n\t<string>${newBuildNumber}</string>`
-    );
-
-    // Write back to file
-    fs.writeFileSync(INFO_PLIST_PATH, updatedContent, 'utf8');
+    execSync(plistBuddyCmd, { stdio: 'pipe' });
     
-    console.log(`✅ Build version bumped to: ${newBuildNumber}`);
-    console.log(`📱 iOS Info.plist updated at: ${INFO_PLIST_PATH}`);
-    
-    // Also log current CFBundleShortVersionString for reference
-    const versionMatch = infoPlistContent.match(/<key>CFBundleShortVersionString<\/key>\s*<string>(.*?)<\/string>/);
-    if (versionMatch) {
-      console.log(`📦 App version: ${versionMatch[1]}`);
-    }
+    console.log(`✅ iOS build number updated to: ${buildNumber}`);
+    console.log(`📱 CFBundleVersion set in: ${INFO_PLIST_PATH}`);
     
     return true;
   } catch (error) {
-    console.error('❌ Error bumping build version:', error.message);
+    console.error('❌ Failed to update iOS build number:', error.message);
+    console.error('💡 Make sure you\'re running on macOS with PlistBuddy available');
+    return false;
+  }
+}
+
+function runBuildBump() {
+  console.log('🔢 Bumping iOS build number for release...');
+  
+  const success = bumpIOSBuildNumber();
+  
+  if (success) {
+    console.log('✅ Build number bump completed');
+    return true;
+  } else {
+    console.error('❌ Build number bump failed');
     return false;
   }
 }
 
 // Run if called directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const success = bumpBuildVersion();
+  const success = runBuildBump();
   process.exit(success ? 0 : 1);
 }
 
-export { bumpBuildVersion };
+export { runBuildBump };
