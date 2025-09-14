@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'production' && process.env.CAPACITOR_SERVER_URL) {
 }
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.9f6d2239d1174792964a0f73a0226ebb',
+  appId: 'com.monolit.eyehear',
   appName: 'eyehear-hungarian-flow',
   webDir: 'dist',
   plugins: {
