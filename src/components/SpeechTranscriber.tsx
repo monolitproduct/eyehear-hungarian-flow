@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import SavedTranscripts from './SavedTranscripts';
 import { t } from '@/i18n';
 import { speechService, SpeechResult } from '@/services/speech/SpeechService';
+import { IS_NATIVE, PLATFORM } from '@/lib/platform/nativeFlags';
 
 // TypeScript interfaces for data structures
 interface TranscriptSegment {
@@ -224,7 +225,7 @@ const SpeechTranscriber: React.FC = () => {
       setSessionDuration(0);
       
       toast({
-        title: speechService.isNativePlatform ? 'Natív beszédfelismerés indítva' : 'Webes beszédfelismerés indítva',
+        title: IS_NATIVE ? 'Natív beszédfelismerés indítva' : 'Webes beszédfelismerés indítva',
         description: 'Kezdje el beszélni...',
       });
 
@@ -414,7 +415,7 @@ const SpeechTranscriber: React.FC = () => {
             <div>
               <h1 className="text-2xl font-bold text-white">EyeHear</h1>
               <p className="text-sm text-purple-200">
-                {speechService.isNativePlatform ? 'Natív iOS beszédfelismerés' : 'Webes beszédfelismerés'}
+                {IS_NATIVE ? `Natív ${PLATFORM.toUpperCase()} beszédfelismerés` : 'Webes beszédfelismerés'}
               </p>
             </div>
           </div>
@@ -563,8 +564,8 @@ const SpeechTranscriber: React.FC = () => {
                     <Mic className="w-12 h-12 mb-4 opacity-50" />
                     <p className="text-lg">Kattintson a mikrofon gombra a beszédfelismerés indításához</p>
                     <p className="text-sm mt-2">
-                      {speechService.isNativePlatform 
-                        ? 'Natív iOS beszédfelismerés használata' 
+                      {IS_NATIVE 
+                        ? `Natív ${PLATFORM.toUpperCase()} beszédfelismerés használata` 
                         : 'Webes beszédfelismerés használata'
                       }
                     </p>

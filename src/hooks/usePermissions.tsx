@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { t } from '@/i18n';
 import { speechService } from '@/services/speech/SpeechService';
+import { IS_NATIVE } from '@/lib/platform/nativeFlags';
 
 // TypeScript definitions for Web Speech API errors
 interface SpeechRecognitionErrorEvent extends Event {
@@ -145,11 +146,11 @@ export const usePermissions = () => {
   }, [checkBrowserSupport, checkMicrophonePermission, checkSpeechRecognitionPermission]);
 
   const openAppSettings = useCallback(() => {
-    // On iOS/mobile, this might not work, but we can try
-    if (window.location.protocol === 'capacitor:') {
+    // On native platforms, show native settings instructions
+    if (IS_NATIVE) {
       // In Capacitor app, we could use a native plugin to open settings
       // For now, show an alert with instructions
-      alert(t('permissions.openAppSettings') + ' - iOS beállítások szükségesek.');
+      alert(t('permissions.openAppSettings') + ' - Natív beállítások szükségesek.');
     } else {
       // In web browser, show instructions
       alert('Kérjük, frissítse az oldalt és engedélyezze a mikrofont és beszédfelismerést a felugró ablakokban.');
