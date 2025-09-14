@@ -33,7 +33,7 @@ class SpeechServiceImpl {
       }
     } else {
       // Web platform
-      const SpeechRecognitionClass = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const mediaDevicesSupported = 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices;
       
       if (!SpeechRecognitionClass || !mediaDevicesSupported) {
@@ -55,7 +55,7 @@ class SpeechServiceImpl {
     } else {
       // Web platform - test by attempting to create recognition
       try {
-        const SpeechRecognitionClass = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognitionClass) {
           return { granted: false, error: 'Speech recognition not supported' };
         }
@@ -156,7 +156,7 @@ class SpeechServiceImpl {
   }
 
   private async startWeb(config: SpeechServiceConfig): Promise<void> {
-    const SpeechRecognitionClass = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (!SpeechRecognitionClass) {
       throw new Error('Speech recognition not supported in this browser');

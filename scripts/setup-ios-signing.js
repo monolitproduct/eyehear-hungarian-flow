@@ -62,6 +62,20 @@ function updateXcodeProject() {
     );
   }
 
+  // Disable user script sandboxing to fix rsync sandbox errors
+  content = content.replace(
+    /ENABLE_USER_SCRIPT_SANDBOXING = [^;]*;/g,
+    'ENABLE_USER_SCRIPT_SANDBOXING = NO;'
+  );
+
+  // Add ENABLE_USER_SCRIPT_SANDBOXING if not present
+  if (!content.includes('ENABLE_USER_SCRIPT_SANDBOXING')) {
+    content = content.replace(
+      /(CODE_SIGN_STYLE = Automatic;)/g,
+      '$1\n\t\t\t\tENABLE_USER_SCRIPT_SANDBOXING = NO;'
+    );
+  }
+
   // Ensure PBXProject TargetAttributes includes DevelopmentTeam
   const targetAttributesRegex = /(TargetAttributes = \{[^}]*?[A-F0-9]{24} = \{)/g;
   content = content.replace(targetAttributesRegex, (match) => {
@@ -71,6 +85,9 @@ function updateXcodeProject() {
     return match.replace(/DevelopmentTeam = [^;]*;/, `DevelopmentTeam = ${DEVELOPMENT_TEAM};`);
   });
 
+  // Fix CocoaPods build phase file lists
+  content = fixCocoaPodsBuildPhase(content);
+
   fs.writeFileSync(XCODE_PROJECT_PATH, content, 'utf8');
 
   console.log('✅ iOS project configured successfully:');
@@ -78,6 +95,30 @@ function updateXcodeProject() {
   console.log(`   • Development Team: ${DEVELOPMENT_TEAM}`);
   console.log('   • Code Signing: Automatic');
   console.log('   • Provisioning Profile: Automatic');
+  console.log('   • Script Sandboxing: Disabled (fixes rsync errors)');
+}
+
+function fixCocoaPodsBuildPhase(content) {
+  // Ensure CocoaPods build phase includes proper file lists to avoid build warnings
+  const embedPodsRegex = /(\[CP\] Embed Pods Frameworks[\s\S]*?shellScript = "[^"]*";)/;
+  
+  if (embedPodsRegex.test(content)) {
+    console.log('🔧 Updating CocoaPods build phase file lists...');
+    
+    // The file lists will be automatically created by CocoaPods when the project syncs
+    // This ensures they're referenced in the build phase when they exist
+    content = content.replace(
+      /(inputFileListPaths = \([^)]*\);)/g,
+      'inputFileListPaths = (\n\t\t\t\t"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks-${CONFIGURATION}-input-files.xcfilelist",\n\t\t\t);'
+    );
+    
+    content = content.replace(
+      /(outputFileListPaths = \([^)]*\);)/g,
+      'outputFileListPaths = (\n\t\t\t\t"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks-${CONFIGURATION}-output-files.xcfilelist",\n\t\t\t);'
+    );
+  }
+  
+  return content;
 }
 
 function verifyConfiguration() {
