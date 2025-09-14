@@ -7,10 +7,44 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const XCODE_PROJECT_PATH = 'ios/App/App.xcodeproj/project.pbxproj';
 const BUNDLE_ID = 'com.monolit.eyehear';
-const DEVELOPMENT_TEAM = 'TC7CDLV36Q';
+
+function detectPersonalTeamId() {
+  try {
+    console.log('🔍 Detecting Personal Team ID...');
+    const output = execSync('security find-identity -p codesigning -v', { encoding: 'utf8' });
+    
+    // Look for "David dr. Proczeller" first
+    const lines = output.split('\n');
+    let personalTeamMatch = lines.find(line => 
+      line.includes('David dr. Proczeller') && line.includes('Apple Development')
+    );
+    
+    // Fallback to any Apple Development identity
+    if (!personalTeamMatch) {
+      personalTeamMatch = lines.find(line => line.includes('Apple Development'));
+    }
+    
+    if (personalTeamMatch) {
+      // Extract team ID from parentheses like "(ABC123XYZ)"
+      const teamIdMatch = personalTeamMatch.match(/\(([A-Z0-9]{10})\)/);
+      if (teamIdMatch) {
+        const teamId = teamIdMatch[1];
+        console.log(`✅ Found Personal Team: ${teamId}`);
+        return teamId;
+      }
+    }
+    
+    console.log('⚠️ No Personal Team found, falling back to hardcoded team');
+    return 'TC7CDLV36Q'; // Fallback
+  } catch (error) {
+    console.log('⚠️ Could not detect team ID, using fallback:', error.message);
+    return 'TC7CDLV36Q'; // Fallback
+  }
+}
 
 function updateXcodeProject() {
   if (!fs.existsSync(XCODE_PROJECT_PATH)) {
@@ -18,6 +52,7 @@ function updateXcodeProject() {
     process.exit(1);
   }
 
+  const DEVELOPMENT_TEAM = detectPersonalTeamId();
   console.log('🔧 Configuring iOS project signing and bundle identifier...');
 
   let content = fs.readFileSync(XCODE_PROJECT_PATH, 'utf8');
@@ -105,17 +140,35 @@ function fixCocoaPodsBuildPhase(content) {
   if (embedPodsRegex.test(content)) {
     console.log('🔧 Updating CocoaPods build phase file lists...');
     
-    // The file lists will be automatically created by CocoaPods when the project syncs
-    // This ensures they're referenced in the build phase when they exist
-    content = content.replace(
-      /(inputFileListPaths = \([^)]*\);)/g,
-      'inputFileListPaths = (\n\t\t\t\t"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks-${CONFIGURATION}-input-files.xcfilelist",\n\t\t\t);'
-    );
+    // Standard file list paths that CocoaPods expects
+    const inputFileList = '"$(SRCROOT)/Pods/Target Support Files/Pods-App/Pods-App-frameworks-$(CONFIGURATION)-input-files.xcfilelist"';
+    const outputFileList = '"$(SRCROOT)/Pods/Target Support Files/Pods-App/Pods-App-frameworks-$(CONFIGURATION)-output-files.xcfilelist"';
     
-    content = content.replace(
-      /(outputFileListPaths = \([^)]*\);)/g,
-      'outputFileListPaths = (\n\t\t\t\t"${PODS_ROOT}/Target Support Files/Pods-App/Pods-App-frameworks-${CONFIGURATION}-output-files.xcfilelist",\n\t\t\t);'
-    );
+    // Update or add input file lists
+    if (content.includes('inputFileListPaths')) {
+      content = content.replace(
+        /(inputFileListPaths = \([^)]*\);)/g,
+        `inputFileListPaths = (\n\t\t\t\t${inputFileList},\n\t\t\t);`
+      );
+    } else {
+      content = content.replace(
+        /(\[CP\] Embed Pods Frameworks[\s\S]*?shellScript = "[^"]*";)/,
+        `$1\n\t\t\tinputFileListPaths = (\n\t\t\t\t${inputFileList},\n\t\t\t);`
+      );
+    }
+    
+    // Update or add output file lists
+    if (content.includes('outputFileListPaths')) {
+      content = content.replace(
+        /(outputFileListPaths = \([^)]*\);)/g,
+        `outputFileListPaths = (\n\t\t\t\t${outputFileList},\n\t\t\t);`
+      );
+    } else {
+      content = content.replace(
+        /(\[CP\] Embed Pods Frameworks[\s\S]*?shellScript = "[^"]*";)/,
+        `$1\n\t\t\toutputFileListPaths = (\n\t\t\t\t${outputFileList},\n\t\t\t);`
+      );
+    }
   }
   
   return content;

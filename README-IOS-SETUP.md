@@ -4,61 +4,58 @@
 
 This project uses normalized identifiers to ensure consistent iOS deployment:
 - **Bundle ID**: `com.monolit.eyehear`
-- **Development Team**: `TC7CDLV36Q`
+- **Development Team**: Auto-detected Personal Team ("David dr. Proczeller")
 - **Code Signing**: Automatic
 
 ## Required Package.json Scripts
 
-Add these scripts to your `package.json`:
+Add this script to your `package.json`:
 ```json
 {
   "scripts": {
-    "ios:setup-signing": "node scripts/setup-ios-signing.js",
-    "ios:build": "npm run build && npx cap sync ios",
-    "ios:run": "npm run ios:build && npx cap run ios"
+    "ios:prepare": "npm run build && npx cap sync ios && node scripts/setup-ios-signing.js && (cd ios/App && pod install || true)"
   }
 }
 ```
 
 ## Setup Process
 
-### Initial iOS Platform Setup
+### Fresh Clone or After `npx cap add ios`
 ```bash
-# 1. Install dependencies
-npm install
+# 1. Install dependencies  
+npm ci
 
-# 2. Add iOS platform
-npx cap add ios
+# 2. Add the ios:prepare script to package.json (see above)
 
-# 3. Configure signing and bundle identifiers
-npm run ios:setup-signing
+# 3. Prepare iOS project (builds, syncs, configures signing, installs pods)
+npm run ios:prepare
 
-# 4. Build and sync
-npm run build
-npx cap sync ios
+# 4. Run on device/simulator
+npx cap run ios
 ```
 
 ### After Pulling Changes
 ```bash
-# Always run after pulling changes to ensure capacitor.config.json is updated
-npm run build && npx cap sync ios
+# Always run after pulling changes
+npm run ios:prepare
 ```
 
-### Running on Device/Simulator
+### Manual Steps (if needed)
 ```bash
-# Build for iOS deployment
-npm run ios:build
-
-# Run on iOS (opens Xcode)
-npx cap run ios
+# Individual commands (ios:prepare does all of these)
+npm run build
+npx cap sync ios
+node scripts/setup-ios-signing.js
+cd ios/App && pod install
 ```
 
 ## Important Notes
 
 - The `capacitor.config.ts` file contains the canonical app ID: `com.monolit.eyehear`
-- After any changes to Capacitor config, always run `npx cap sync ios`
-- The iOS project is configured for automatic signing with team ID `TC7CDLV36Q`
+- After any changes to Capacitor config, always run `npm run ios:prepare`
+- The iOS project auto-detects your Personal Team ("David dr. Proczeller") for automatic signing
 - All bundle identifiers are kept in sync between Capacitor and Xcode project
+- Personal Team is fine for device testing; for App Store, switch to the org's paid team later
 
 ## Native iOS Speech Recognition
 
@@ -80,12 +77,12 @@ The "Browser not supported" banner will only appear on web when the browser lack
 ### Bundle ID Mismatch
 If you see bundle ID conflicts:
 ```bash
-npm run ios:setup-signing
+node scripts/setup-ios-signing.js
 npx cap sync ios
 ```
 
 ### Signing Issues
-- Ensure you have access to development team `TC7CDLV36Q`
+- The setup script auto-detects your Personal Team ("David dr. Proczeller") 
 - Xcode project is configured for automatic signing
 - Clear derived data in Xcode if needed
 
