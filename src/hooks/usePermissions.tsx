@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { t } from '@/i18n';
+import { speechService } from '@/services/speech/SpeechService';
 
 // TypeScript definitions for Web Speech API errors
 interface SpeechRecognitionErrorEvent extends Event {
@@ -24,9 +25,9 @@ export const usePermissions = () => {
     isLoading: true
   });
 
-  const checkBrowserSupport = useCallback(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    return !!SpeechRecognition && 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices;
+  const checkBrowserSupport = useCallback(async () => {
+    const availability = await speechService.checkAvailability();
+    return availability.available;
   }, []);
 
   const checkMicrophonePermission = useCallback(async (): Promise<PermissionStatus> => {
@@ -62,47 +63,13 @@ export const usePermissions = () => {
     }
   }, []);
 
-  const checkSpeechRecognitionPermission = useCallback((): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> => {
-    return new Promise((resolve) => {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
-      if (!SpeechRecognition) {
-        resolve('denied');
-        return;
-      }
-
-      try {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        const timeout = setTimeout(() => {
-          recognition.abort();
-          resolve('unknown');
-        }, 3000);
-
-        (recognition as any).onstart = () => {
-          clearTimeout(timeout);
-          recognition.abort();
-          resolve('granted');
-        };
-
-        (recognition as any).onerror = (event: any) => {
-          clearTimeout(timeout);
-          if (event.error === 'not-allowed' || event.error === 'permission-denied') {
-            resolve('denied');
-          } else {
-            resolve('prompt');
-          }
-        };
-
-        // Start recognition to test permission
-        recognition.start();
-      } catch (error) {
-        console.error('Error checking speech recognition permission:', error);
-        resolve('unknown');
-      }
-    });
+  const checkSpeechRecognitionPermission = useCallback(async (): Promise<'granted' | 'denied' | 'prompt' | 'unknown'> => {
+    try {
+      const result = await speechService.requestPermission();
+      return result.granted ? 'granted' : 'denied';
+    } catch (error) {
+      return 'unknown';
+    }
   }, []);
 
   const requestMicrophonePermission = useCallback(async (): Promise<boolean> => {
@@ -116,42 +83,13 @@ export const usePermissions = () => {
     }
   }, []);
 
-  const requestSpeechRecognitionPermission = useCallback((): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
-      if (!SpeechRecognition) {
-        resolve(false);
-        return;
-      }
-
-      try {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        const timeout = setTimeout(() => {
-          recognition.abort();
-          resolve(false);
-        }, 5000);
-
-        (recognition as any).onstart = () => {
-          clearTimeout(timeout);
-          recognition.abort();
-          resolve(true);
-        };
-
-        (recognition as any).onerror = (event: any) => {
-          clearTimeout(timeout);
-          resolve(false);
-        };
-
-        recognition.start();
-      } catch (error) {
-        console.error('Error requesting speech recognition permission:', error);
-        resolve(false);
-      }
-    });
+  const requestSpeechRecognitionPermission = useCallback(async (): Promise<boolean> => {
+    try {
+      const result = await speechService.requestPermission();
+      return result.granted;
+    } catch (error) {
+      return false;
+    }
   }, []);
 
   const requestAllPermissions = useCallback(async (): Promise<boolean> => {
@@ -177,7 +115,7 @@ export const usePermissions = () => {
     setPermissionState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      const isSupported = checkBrowserSupport();
+      const isSupported = await checkBrowserSupport();
       
       if (!isSupported) {
         setPermissionState({

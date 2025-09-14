@@ -67,6 +67,14 @@
   "errors.transcriptionFailed": "A feliratozás nem sikerült. Próbálja újra.",
   "errors.error": "Hiba",
   "errors.unexpected": "Váratlan hiba történt",
+  "errors.speechRecognition.notAllowed": "Beszédfelismerési engedély megtagadva.",
+  "errors.speechRecognition.noSpeech": "Nincs beszéd érzékelve. Próbálja újra.",
+  "errors.speechRecognition.audioCapture": "Mikrofon nem érhető el.",
+  "errors.speechRecognition.network": "Hálózati hiba a beszédfelismerés során.",
+
+  "speech.native.started": "Natív beszédfelismerés elindítva",
+  "speech.web.started": "Webes beszédfelismerés elindítva",
+  "speech.startSpeaking": "Kezdje el beszélni...",
 
   "common.loading": "Betöltés…",
   "common.ok": "OK",

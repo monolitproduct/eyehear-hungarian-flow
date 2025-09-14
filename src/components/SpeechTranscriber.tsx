@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import SavedTranscripts from './SavedTranscripts';
 import { t } from '@/i18n';
+import { speechService, SpeechResult } from '@/services/speech/SpeechService';
 
 // TypeScript interfaces for data structures
 interface TranscriptSegment {
@@ -19,29 +20,6 @@ interface TranscriptSegment {
   text: string;
   timestamp: Date;
   isFinal: boolean;
-}
-
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-  resultIndex: number;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  maxAlternatives: number;
-  start(): void;
-  stop(): void;
-  abort(): void;
-  addEventListener(type: string, listener: (event: SpeechRecognitionEvent) => void): void;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition: new () => SpeechRecognition;
-    webkitSpeechRecognition: new () => SpeechRecognition;
-  }
 }
 
 const SpeechTranscriber: React.FC = () => {
@@ -58,14 +36,13 @@ const SpeechTranscriber: React.FC = () => {
   const [isSupported, setIsSupported] = useState(false);
 
   // Critical refs for speech handling
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const lastInterimTextRef = useRef('');
   const finalizedTextRef = useRef('');
-  const isRestartingRef = useRef(false);
-  const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sessionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const resultUnsubscribeRef = useRef<(() => void) | null>(null);
+  const errorUnsubscribeRef = useRef<(() => void) | null>(null);
 
   const { toast } = useToast();
   const { user, signOut } = useAuth();
@@ -73,20 +50,23 @@ const SpeechTranscriber: React.FC = () => {
 
   // Constants
   const MAX_SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
-  const RESTART_INTERVAL = 55 * 1000; // 55 seconds to prevent 1-minute cutoff
 
-  // Check browser support for Speech Recognition
+  // Check speech service availability
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      setIsSupported(true);
-    } else {
-      toast({
-        title: "Nem támogatott",
-        description: "A böngésző nem támogatja a beszédfelismerést. Próbálja meg Chrome vagy Safari böngészővel.",
-        variant: "destructive",
-      });
-    }
+    const checkAvailability = async () => {
+      const availability = await speechService.checkAvailability();
+      setIsSupported(availability.available);
+      
+      if (!availability.available && availability.reason === 'web-unsupported') {
+        toast({
+          title: "Nem támogatott",
+          description: "A böngésző nem támogatja a beszédfelismerést. Próbálja meg Chrome vagy Safari böngészővel.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    checkAvailability();
   }, [toast]);
 
   // Session duration updater
@@ -118,7 +98,7 @@ const SpeechTranscriber: React.FC = () => {
         clearInterval(durationIntervalRef.current);
       }
     };
-  }, [isListening, sessionStartTime, toast]);
+  }, [isListening, sessionStartTime]);
 
   // Auto-scroll to bottom when transcript updates
   useEffect(() => {
@@ -127,340 +107,211 @@ const SpeechTranscriber: React.FC = () => {
     }
   }, [transcript, currentInterim]);
 
-  // Format duration for display
-  const formatDuration = (ms: number): string => {
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (resultUnsubscribeRef.current) {
+        resultUnsubscribeRef.current();
+      }
+      if (errorUnsubscribeRef.current) {
+        errorUnsubscribeRef.current();
+      }
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
+      if (sessionTimeoutRef.current) {
+        clearTimeout(sessionTimeoutRef.current);
+      }
+      speechService.stop();
+    };
+  }, []);
+
+  // Format duration helper
+  const formatDuration = useCallback((ms: number): string => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  // Create and configure speech recognition
-  const createRecognition = useCallback((): SpeechRecognition | null => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return null;
-
-    const recognition = new SpeechRecognition();
+    const hours = Math.floor(minutes / 60);
     
-    // Configure recognition for Hungarian continuous speech
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'hu-HU';
-    recognition.maxAlternatives = 1;
-
-    // Force online/server-based recognition (not device-local)
-    if ('serviceURI' in recognition) {
-      (recognition as any).serviceURI = 'wss://www.google.com/speech-api/v2/recognize';
+    if (hours > 0) {
+      return `${hours}:${(minutes % 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
     }
-
-    return recognition;
+    return `${minutes}:${(seconds % 60).toString().padStart(2, '0')}`;
   }, []);
 
   // Handle speech recognition results
-  const handleResult = useCallback((event: SpeechRecognitionEvent) => {
-    if (isRestartingRef.current) return;
+  const handleResult = useCallback((result: SpeechResult) => {
+    const cleanText = sanitizeText(result.text).trim();
+    if (!cleanText) return;
 
-    let interimTranscript = '';
-    let finalTranscript = '';
-
-    // Process all results from the current session
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const result = event.results[i];
-      const transcript = result[0].transcript;
-
-      if (result.isFinal) {
-        finalTranscript += transcript + ' ';
-      } else {
-        interimTranscript += transcript;
-      }
-    }
-
-    // Update state with new transcript data
-    if (finalTranscript) {
-      const newSegment: TranscriptSegment = {
-        id: Date.now().toString(),
-        text: finalTranscript.trim(),
+    if (result.isFinal) {
+      // Add final result to transcript
+      setTranscript(prev => [...prev, {
+        id: crypto.randomUUID(),
+        text: cleanText,
         timestamp: new Date(),
-        isFinal: true,
-      };
-
-      setTranscript(prev => [...prev, newSegment]);
-      finalizedTextRef.current += finalTranscript;
-      setWordCount(prev => prev + finalTranscript.split(' ').filter(word => word.length > 0).length);
+        isFinal: true
+      }]);
+      
+      // Clear interim text and update refs
       setCurrentInterim('');
       lastInterimTextRef.current = '';
-    }
-
-    if (interimTranscript && !finalTranscript) {
-      setCurrentInterim(interimTranscript);
-      lastInterimTextRef.current = interimTranscript;
+      finalizedTextRef.current += ' ' + cleanText;
+      
+      // Update word count
+      const words = finalizedTextRef.current.trim().split(/\s+/).filter(word => word.length > 0);
+      setWordCount(words.length);
+    } else {
+      // Update interim results
+      if (cleanText !== lastInterimTextRef.current) {
+        setCurrentInterim(cleanText);
+        lastInterimTextRef.current = cleanText;
+      }
     }
   }, []);
 
   // Handle speech recognition errors
-  const handleError = useCallback((event: any) => {
-    if (isRestartingRef.current) return;
-
-    console.error('Speech recognition error:', event.error);
+  const handleError = useCallback((error: string) => {
+    console.error('Speech recognition error:', error);
     
-    // Handle different error types
-    switch (event.error) {
-      case 'network':
-        toast({
-          title: "Hálózati hiba",
-          description: "Ellenőrizze az internetkapcsolatot és próbálja újra.",
-          variant: "destructive",
-        });
-        break;
-      case 'not-allowed':
-        toast({
-          title: "Mikrofonhozzáférés megtagadva",
-          description: "Újítsa fel az oldalt és engedélyezze a mikrofonhozzáférést amikor kéri a böngésző.",
-          variant: "destructive",
-        });
-        break;
-      case 'no-speech':
-        // Don't show error for no speech - this is normal
-        return;
-      default:
-        toast({
-          title: "Beszédfelismerési hiba",
-          description: "Váratlan hiba történt. Próbálja újra.",
-          variant: "destructive",
-        });
-    }
-
-    setIsListening(false);
-  }, [toast]);
-
-  // Handle speech recognition end (triggers auto-restart)
-  const handleEnd = useCallback(() => {
-    console.log('Speech recognition ended');
+    // Map errors to user-friendly messages in Hungarian
+    let message = 'Ismeretlen hiba történt a beszédfelismerés során.';
     
-    if (!isRestartingRef.current && isListening) {
-      console.log('Restarting recognition...');
-      restartRecognition();
-    }
-  }, [isListening]);
-
-  // Restart speech recognition (called every 55 seconds)
-  const restartRecognition = useCallback(() => {
-    if (!isListening || isRestartingRef.current) return;
-
-    isRestartingRef.current = true;
-    console.log('Restarting speech recognition to prevent timeout...');
-
-    // Stop current recognition
-    if (recognitionRef.current) {
-      recognitionRef.current.removeEventListener('result', handleResult as any);
-      recognitionRef.current.removeEventListener('error', handleError as any);
-      recognitionRef.current.removeEventListener('end', handleEnd as any);
-      recognitionRef.current.stop();
-    }
-
-    // Start new recognition after brief delay
-    setTimeout(() => {
-      const newRecognition = createRecognition();
-      if (!newRecognition) return;
-
-      recognitionRef.current = newRecognition;
-      
-      // Re-attach event listeners
-      newRecognition.addEventListener('result', handleResult as any);
-      newRecognition.addEventListener('error', handleError as any);
-      newRecognition.addEventListener('end', handleEnd as any);
-
-      try {
-        newRecognition.start();
-        isRestartingRef.current = false;
-        
-        // Schedule next restart
-        restartTimeoutRef.current = setTimeout(restartRecognition, RESTART_INTERVAL);
-      } catch (error) {
-        console.error('Error restarting recognition:', error);
-        isRestartingRef.current = false;
-      }
-    }, 100);
-  }, [isListening, createRecognition, handleResult, handleError, handleEnd]);
-
-  // Request microphone permissions explicitly
-  const requestMicrophonePermission = async (): Promise<boolean> => {
-    try {
-      // First, try to get microphone permission
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop()); // Clean up
-      return true;
-    } catch (error) {
-      console.error('Microphone permission denied:', error);
-      toast({
-        title: "Mikrofonhozzáférés megtagadva",
-        description: "Engedélyezze a mikrofonhozzáférést a böngészőben és próbálja újra.",
-        variant: "destructive",
-      });
-      return false;
-    }
-  };
-
-  // Start listening function
-  const startListening = useCallback(async () => {
-    if (!isSupported) {
-      toast({
-        title: "Nem támogatott",
-        description: "A böngésző nem támogatja a beszédfelismerést.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Request microphone permission first
-    const hasPermission = await requestMicrophonePermission();
-    if (!hasPermission) {
-      return;
-    }
-
-    const recognition = createRecognition();
-    if (!recognition) return;
-
-    // Reset state for new session
-    setTranscript([]);
-    setCurrentInterim('');
-    setWordCount(0);
-    setSessionStartTime(new Date());
-    setSessionDuration(0);
-    finalizedTextRef.current = '';
-    lastInterimTextRef.current = '';
-
-    // Set up event listeners
-    recognition.addEventListener('result', handleResult as any);
-    recognition.addEventListener('error', handleError as any);
-    recognition.addEventListener('end', handleEnd as any);
-
-    recognitionRef.current = recognition;
-
-    try {
-      recognition.start();
-      setIsListening(true);
-      
-      // Schedule first restart
-      restartTimeoutRef.current = setTimeout(restartRecognition, RESTART_INTERVAL);
-      
-      toast({
-        title: "Beszédfelismerés aktív",
-        description: "Beszéljen a mikrofonba. A felismerés folyamatos, maximum 30 percig.",
-        duration: 2000,
-      });
-    } catch (error) {
-      console.error('Error starting recognition:', error);
-      toast({
-        title: "Hiba",
-        description: "Nem sikerült elindítani a beszédfelismerést.",
-        variant: "destructive",
-      });
-    }
-  }, [isSupported, createRecognition, handleResult, handleError, handleEnd, restartRecognition, toast]);
-
-  // Stop listening function
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.removeEventListener('result', handleResult as any);
-      recognitionRef.current.removeEventListener('error', handleError as any);
-      recognitionRef.current.removeEventListener('end', handleEnd as any);
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
-    }
-
-    // Clear timeouts
-    if (restartTimeoutRef.current) {
-      clearTimeout(restartTimeoutRef.current);
-      restartTimeoutRef.current = null;
-    }
-
-    if (sessionTimeoutRef.current) {
-      clearTimeout(sessionTimeoutRef.current);
-      sessionTimeoutRef.current = null;
-    }
-
-    setIsListening(false);
-    isRestartingRef.current = false;
-
-    // Show save dialog if there's content
-    if (transcript.length > 0 || currentInterim.trim()) {
-      setShowSaveDialog(true);
-      setSaveTitle(`Átirat ${new Date().toLocaleDateString('hu-HU')} ${new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' })}`);
+    if (error.includes('not-allowed') || error.includes('permission')) {
+      message = 'Mikrofonengedély szükséges a beszédfelismeréshez.';
+    } else if (error.includes('network')) {
+      message = 'Hálózati hiba. Ellenőrizze az internetkapcsolatot.';
+    } else if (error.includes('no-speech')) {
+      message = 'Nincs beszéd érzékelve. Próbálja újra.';
+    } else if (error.includes('audio-capture')) {
+      message = 'Mikrofon nem érhető el. Ellenőrizze a mikrofonkapcsolatot.';
     }
 
     toast({
-      title: "Felvétel leállítva",
-      description: "A beszédfelismerés befejeződött.",
-      duration: 2000,
+      title: 'Beszédfelismerési hiba',
+      description: message,
+      variant: 'destructive',
     });
-  }, [transcript, currentInterim, handleResult, handleError, handleEnd, toast]);
+  }, [toast]);
 
-  // Save transcript to database
-  // Sanitize content to prevent XSS and ensure data integrity
+  // Start listening
+  const startListening = useCallback(async () => {
+    try {
+      // Check permissions first
+      const permissionResult = await speechService.requestPermission();
+      if (!permissionResult.granted) {
+        toast({
+          title: 'Engedély szükséges',
+          description: permissionResult.error || 'Mikrofon és beszédfelismerési engedély szükséges.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Set up listeners
+      resultUnsubscribeRef.current = speechService.onResult(handleResult);
+      errorUnsubscribeRef.current = speechService.onError(handleError);
+
+      // Start speech recognition
+      await speechService.start({
+        language: 'hu-HU',
+        partialResults: true,
+        continuous: true,
+        interimResults: true
+      });
+
+      setIsListening(true);
+      setSessionStartTime(new Date());
+      setSessionDuration(0);
+      
+      toast({
+        title: speechService.isNativePlatform ? 'Natív beszédfelismerés indítva' : 'Webes beszédfelismerés indítva',
+        description: 'Kezdje el beszélni...',
+      });
+
+    } catch (error) {
+      console.error('Error starting speech recognition:', error);
+      toast({
+        title: 'Hiba',
+        description: error instanceof Error ? error.message : 'Nem sikerült elindítani a beszédfelismerést.',
+        variant: 'destructive',
+      });
+    }
+  }, [handleResult, handleError, toast]);
+
+  // Stop listening
+  const stopListening = useCallback(async () => {
+    try {
+      await speechService.stop();
+      
+      // Clean up listeners
+      if (resultUnsubscribeRef.current) {
+        resultUnsubscribeRef.current();
+        resultUnsubscribeRef.current = null;
+      }
+      if (errorUnsubscribeRef.current) {
+        errorUnsubscribeRef.current();
+        errorUnsubscribeRef.current = null;
+      }
+
+      setIsListening(false);
+      
+      // Add any remaining interim text as final
+      if (currentInterim.trim()) {
+        setTranscript(prev => [...prev, {
+          id: crypto.randomUUID(),
+          text: currentInterim.trim(),
+          timestamp: new Date(),
+          isFinal: true
+        }]);
+        setCurrentInterim('');
+      }
+      
+      // Show save dialog if there's content
+      if (transcript.length > 0 || currentInterim.trim()) {
+        setShowSaveDialog(true);
+      }
+
+    } catch (error) {
+      console.error('Error stopping speech recognition:', error);
+    }
+  }, [transcript, currentInterim]);
+
+  // Sanitize text to prevent XSS
   const sanitizeText = (text: string): string => {
-    return text
-      .replace(/[<>]/g, '') // Remove potential HTML tags
-      .replace(/javascript:/gi, '') // Remove javascript: protocol
-      .replace(/on\w+=/gi, '') // Remove event handlers
-      .trim();
+    return text.replace(/[<>]/g, '');
   };
 
-  const saveTranscript = async () => {
-    const fullContent = finalizedTextRef.current + (currentInterim ? ' ' + currentInterim : '');
-    
-    if (!fullContent.trim()) {
-      toast({
-        title: "Nincs tartalom",
-        description: "Nincs mentendő átirat.",
-        variant: "destructive",
-        duration: 2000,
-      });
-      return;
-    }
-
+  // Save transcript to Supabase
+  const saveTranscript = useCallback(async () => {
     if (!user) {
       toast({
         title: t('auth.login.required'),
         description: t('auth.login.required.save'),
-        variant: "destructive",
-        duration: 2000,
+        variant: 'destructive',
       });
       return;
     }
 
     try {
-      // Sanitize inputs before saving
-      const sanitizedContent = sanitizeText(fullContent);
-      const sanitizedTitle = sanitizeText(saveTitle || 'Mentett átirat');
-      
-      // Validate content length
-      if (sanitizedContent.length > 50000) {
-        toast({
-          title: "Túl hosszú tartalom",
-          description: "Az átirat túl hosszú a mentéshez.",
-          variant: "destructive",
-          duration: 2000,
-        });
-        return;
-      }
+      const allText = transcript.map(t => t.text).join(' ') + (currentInterim ? ' ' + currentInterim : '');
+      const sanitizedText = sanitizeText(allText);
+      const finalTitle = sanitizeText(saveTitle || `Átirat ${new Date().toLocaleDateString('hu-HU')}`);
 
       const { error } = await supabase
         .from('transcripts')
-        .insert([{
-          title: sanitizedTitle,
-          content: sanitizedContent,
-          word_count: wordCount + (currentInterim ? currentInterim.split(' ').filter(w => w.length > 0).length : 0),
-          duration_seconds: Math.floor(sessionDuration / 1000),
-          user_id: user.id,
-        }]);
+        .insert({
+          title: finalTitle,
+          content: sanitizedText,
+          word_count: wordCount,
+          session_duration: Math.round(sessionDuration / 1000),
+          user_id: user.id
+        });
 
       if (error) throw error;
 
       toast({
-        title: "Átirat mentve",
-        description: "Az átirat sikeresen mentve lett az adatbázisba.",
-        duration: 2000,
+        title: 'Átirat mentve',
+        description: `"${finalTitle}" sikeresen mentve!`,
       });
 
       setShowSaveDialog(false);
@@ -468,523 +319,338 @@ const SpeechTranscriber: React.FC = () => {
     } catch (error) {
       console.error('Error saving transcript:', error);
       toast({
-        title: "Mentési hiba",
-        description: "Nem sikerült menteni az átiratot.",
-        variant: "destructive",
-        duration: 2000,
+        title: 'Mentési hiba',
+        description: 'Az átirat mentése nem sikerült.',
+        variant: 'destructive',
       });
     }
-  };
+  }, [user, transcript, currentInterim, saveTitle, wordCount, sessionDuration, toast]);
 
   // Discard transcript
-  const discardTranscript = () => {
-    setShowSaveDialog(false);
-    setSaveTitle('');
+  const discardTranscript = useCallback(() => {
     setTranscript([]);
     setCurrentInterim('');
     setWordCount(0);
     setSessionDuration(0);
+    setSessionStartTime(null);
+    setShowSaveDialog(false);
+    setSaveTitle('');
     finalizedTextRef.current = '';
     lastInterimTextRef.current = '';
-  };
-
-  // Clean up on component unmount
-  useEffect(() => {
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      if (restartTimeoutRef.current) {
-        clearTimeout(restartTimeoutRef.current);
-      }
-      if (sessionTimeoutRef.current) {
-        clearTimeout(sessionTimeoutRef.current);
-      }
-      if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current);
-      }
-    };
   }, []);
 
-  // Format transcript text into 4-word chunks
-  const formatTranscriptText = (text: string) => {
-    const words = text.split(' ').filter(word => word.length > 0);
-    const chunks = [];
-    
-    for (let i = 0; i < words.length; i += 4) {
-      chunks.push(words.slice(i, i + 4).join(' '));
+  // Format transcript text into readable chunks
+  const formatTranscriptText = useCallback((segments: TranscriptSegment[]): string[] => {
+    const fullText = segments.map(s => s.text).join(' ');
+    const sentences = fullText.match(/[^\.!?]*[\.!?]+/g) || [fullText];
+    return sentences.map(s => s.trim()).filter(s => s.length > 0);
+  }, []);
+
+  // Handle logout
+  const handleLogout = async () => {
+    if (isListening) {
+      await stopListening();
     }
-    
-    return chunks;
+    await signOut();
+    navigate('/auth');
   };
 
-  // Render saved transcripts view
+  // Show saved transcripts view
   if (showSavedTranscripts) {
     return <SavedTranscripts onBack={() => setShowSavedTranscripts(false)} />;
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col particle-bg overflow-x-hidden">
-      {/* Futuristic Header */}
-      <motion.header 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="header-gradient border-b border-border pt-2 pb-2 px-4 sticky top-0 z-10"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="bento-grid grid-cols-1 md:grid-cols-3 gap-4 p-0">
-            {/* App Title Section */}
-            <motion.div 
-              className="glass-card p-3 neon-border mt-4"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
+    <div className="relative min-h-[100dvh] overflow-hidden">
+      {/* Animated background */}
+      <div className="pointer-events-none absolute inset-0 bg-animated-purple opacity-75" />
+      
+      {/* Floating orbs for ambiance */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-white/5 backdrop-blur-sm"
+            style={{
+              width: Math.random() * 200 + 100,
+              height: Math.random() * 200 + 100,
+            }}
+            initial={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+            }}
+            animate={{
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+            }}
+            transition={{
+              duration: Math.random() * 20 + 20,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Main content */}
+      <div className="relative z-10 mx-auto max-w-4xl px-4 py-8">
+        {/* Header with controls */}
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <motion.div
+              animate={{ 
+                scale: isListening ? [1, 1.1, 1] : 1,
+                rotate: isListening ? [0, 5, -5, 0] : 0
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: isListening ? Infinity : 0,
+                ease: "easeInOut"
+              }}
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25"
             >
-              <h1 className="text-3xl font-heading font-bold text-white mb-2 text-center animate-pulse-glow">
-                EyeHear
-              </h1>
-              <p className="text-sm text-white mt-1 text-center">
-                Magyar nyelvű beszédfelismerő AI
-              </p>
+              <Zap className="w-6 h-6 text-white" />
             </motion.div>
-
-            {/* Status Display */}
-            <AnimatePresence>
-              {isListening && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="glass-card p-3 grid grid-cols-2 gap-3"
-                >
-                  <div className="flex items-center gap-2 text-primary">
-                    <Clock className="w-5 h-5 animate-pulse" />
-                    <span className="font-mono text-lg">{formatDuration(sessionDuration)}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-transcript-cyan">
-                    <Hash className="w-5 h-5" />
-                    <span className="font-mono text-lg">{wordCount} szó</span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            {/* Action Buttons - Responsive Grid Layout */}
-            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3 w-full px-4 overflow-x-hidden">
-              {/* Left: Saved Transcripts - Flexible */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="min-w-0"
-              >
-                <Button
-                  variant="outline"
-                  onClick={() => setShowSavedTranscripts(true)}
-                  className="w-full h-10 glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300 text-sm px-3"
-                >
-                  <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Mentett átiratok</span>
-                </Button>
-              </motion.div>
-
-              {/* Right: Privacy and Logout - Auto width, compact */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/privacy')}
-                  className="h-10 px-3 glass-card border-primary/30 hover:border-primary text-foreground hover:text-primary transition-all duration-300 text-sm min-w-0"
-                  type="button"
-                >
-                  <Shield className="w-4 h-4 flex-shrink-0" />
-                  <span className="ml-2 hidden sm:inline">Adatvédelem</span>
-                </Button>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    try {
-                      await signOut();
-                      toast({
-                        title: t('auth.logout.success'),
-                        description: t('auth.logout.success.description'),
-                        duration: 2000,
-                      });
-                      navigate('/auth');
-                    } catch (error) {
-                      console.error('Logout error:', error);
-                      toast({
-                        title: t('auth.logout.error'),
-                        description: t('auth.logout.error.description'),
-                        variant: "destructive",
-                        duration: 2000,
-                      });
-                    }
-                  }}
-                  className="h-10 px-3 glass-card border-destructive/30 hover:border-destructive text-destructive hover:text-destructive transition-all duration-300 text-sm min-w-0"
-                  type="button"
-                >
-                  <LogOut className="w-4 h-4 flex-shrink-0" />
-                  <span className="ml-2 hidden sm:inline">Kijelentkezés</span>
-                </Button>
-              </motion.div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">EyeHear</h1>
+              <p className="text-sm text-purple-200">
+                {speechService.isNativePlatform ? 'Natív iOS beszédfelismerés' : 'Webes beszédfelismerés'}
+              </p>
             </div>
           </div>
-        </div>
-      </motion.header>
-
-      {/* Futuristic Main Transcript Area */}
-      <main className="flex-1 p-4 overflow-y-auto">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass-card min-h-[55vh] p-6 perspective-1000"
-          >
-            {!isListening && transcript.length === 0 && !currentInterim ? (
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="flex items-center justify-center h-full text-center"
-              >
-                <div className="space-y-4">
-                  <div className="flex justify-center items-center">
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.06, 1]
-                      }}
-                      transition={{ 
-                        duration: 2.5,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="relative mic-logo-container flex justify-center items-center"
-                      style={{
-                        width: 'clamp(120px, min(26vw, 160px), 160px)',
-                        height: 'clamp(120px, min(26vw, 160px), 160px)',
-                        transformOrigin: 'center'
-                      }}
-                    >
-                      <svg
-                        viewBox="0 0 200 200"
-                        className="w-full h-full relative z-10"
-                        role="img"
-                        aria-label="Mikrofon – élő beszédfelismerés"
-                      >
-                        {/* Gradient Definitions */}
-                        <defs>
-                          <linearGradient id="micGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#FF0080" />
-                            <stop offset="100%" stopColor="#7928CA" />
-                          </linearGradient>
-                          <filter id="whiteGlow">
-                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                            <feMerge> 
-                              <feMergeNode in="coloredBlur"/>
-                              <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                          </filter>
-                          <filter id="glow">
-                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                            <feMerge> 
-                              <feMergeNode in="coloredBlur"/>
-                              <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                          </filter>
-                        </defs>
-                        
-                        {/* Outer Glow Circle */}
-                        <circle 
-                          cx="100" 
-                          cy="100" 
-                          r="90" 
-                          fill="none" 
-                          stroke="url(#micGradient)" 
-                          strokeWidth="2" 
-                          opacity="0.3"
-                          className="animate-pulse-ring"
-                        />
-                        
-                        {/* Main Circle */}
-                        <circle 
-                          cx="100" 
-                          cy="100" 
-                          r="70" 
-                          fill="rgba(15, 15, 23, 0.8)" 
-                          stroke="url(#micGradient)" 
-                          strokeWidth="3"
-                          filter="url(#glow)"
-                        />
-                        
-                        {/* Conventional White Microphone Pictogram (no glow) */}
-                        <g transform="translate(100, 100)" fill="#FFFFFF" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          {/* Mic Capsule Body - vertical rounded rectangle */}
-                          <rect x="-8" y="-28" width="16" height="35" rx="8" ry="8" fill="#FFFFFF" />
-                          
-                          {/* U-shaped Cradle */}
-                          <path d="M -18 8 L -18 18 Q -18 22 -14 22 L 14 22 Q 18 22 18 18 L 18 8" 
-                                fill="none" stroke="#FFFFFF" strokeWidth="2" />
-                          
-                          {/* Vertical Stem */}
-                          <line x1="0" y1="22" x2="0" y2="35" stroke="#FFFFFF" strokeWidth="2" />
-                          
-                          {/* Horizontal Base - pill shaped */}
-                          <rect x="-12" y="35" width="24" height="4" rx="2" ry="2" fill="#FFFFFF" />
-                        </g>
-                      </svg>
-                      
-                      {/* Ambient Glow Rings */}
-                      <div className="absolute inset-0 rounded-full mic-glow-ring-1"></div>
-                      <div className="absolute inset-0 rounded-full mic-glow-ring-2"></div>
-                    </motion.div>
-                  </div>
-                  <div className="space-y-2">
-                    <h2 className="text-3xl font-heading font-bold text-glow">
-                      AI BESZÉDFELISMERÉS
-                    </h2>
-                    <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
-                      Nyomja meg a mikrofon gombot és valós időben olvashatja az elhangzott szöveget
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <div className="space-y-3 perspective-1000">
-                <AnimatePresence>
-                  {/* Final transcript segments */}
-                  {transcript.map((segment, segmentIndex) => (
-                    <motion.div 
-                      key={segment.id}
-                      initial={{ opacity: 0, y: 20, rotateX: 90 }}
-                      animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                      transition={{ 
-                        delay: segmentIndex * 0.1,
-                        type: "spring",
-                        stiffness: 300
-                      }}
-                      className="space-y-1"
-                    >
-                      {formatTranscriptText(segment.text).map((chunk, index) => (
-                        <motion.div
-                          key={`${segment.id}-${index}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="py-1 text-transcript-cyan text-2xl leading-tight"
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          {chunk}
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  ))}
-                  
-                  {/* Current interim text */}
-                  {currentInterim && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="space-y-1"
-                    >
-                      {formatTranscriptText(currentInterim).map((chunk, index) => (
-                        <motion.div
-                          key={`interim-${index}`}
-                          animate={{ 
-                            opacity: [0.5, 0.8, 0.5],
-                            scale: [0.98, 1.02, 0.98]
-                          }}
-                          transition={{ 
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                          className="py-1 text-transcript-cyan text-2xl leading-tight opacity-70"
-                        >
-                          {chunk}
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                
-                <div ref={transcriptEndRef} />
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </main>
-
-      {/* Futuristic Fixed Bottom Navigation */}
-      <motion.footer 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="border-t border-border/50 p-4 bg-glass backdrop-blur-glass"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col items-center gap-3">
-            {/* Main Microphone Button */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative -mt-4"
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSavedTranscripts(true)}
+              className="text-white hover:bg-white/10"
             >
-              <Button
-                size="lg"
-                onClick={isListening ? stopListening : startListening}
-                disabled={!isSupported}
-                className={`w-20 h-20 rounded-full relative overflow-hidden transition-all duration-500 text-white font-bold ${
-                  isListening ? 'mic-button-active' : ''
-                }`}
-                style={{
-                  background: 'linear-gradient(90deg, #FF0080 0%, #7928CA 100%)',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundSize: '100% 100%',
-                  backgroundPosition: 'left center',
-                  backgroundClip: 'padding-box',
-                  border: 'none',
-                  borderColor: 'transparent',
-                  borderRadius: '9999px'
-                }}
+              <FileText className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/privacy')}
+              className="text-white hover:bg-white/10"
+            >
+              <Shield className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="text-white hover:bg-white/10"
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Status bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
+          <Card className="border border-white/20 bg-white/10 backdrop-blur-md">
+            <div className="p-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Clock className="w-4 h-4 text-purple-300" />
+                <span className="text-sm font-medium text-purple-200">Időtartam</span>
+              </div>
+              <div className="text-lg font-bold text-white">
+                {formatDuration(sessionDuration)}
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="border border-white/20 bg-white/10 backdrop-blur-md">
+            <div className="p-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Hash className="w-4 h-4 text-green-300" />
+                <span className="text-sm font-medium text-purple-200">Szavak</span>
+              </div>
+              <div className="text-lg font-bold text-white">{wordCount}</div>
+            </div>
+          </Card>
+          
+          <Card className="border border-white/20 bg-white/10 backdrop-blur-md">
+            <div className="p-4 text-center">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Mic className={`w-4 h-4 ${isListening ? 'text-red-400' : 'text-gray-400'}`} />
+                <span className="text-sm font-medium text-purple-200">Státusz</span>
+              </div>
+              <div className={`text-lg font-bold ${isListening ? 'text-red-400' : 'text-white'}`}>
+                {isListening ? 'Hallgatás...' : 'Készenlét'}
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Main microphone button */}
+        <div className="mb-8 flex justify-center">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Button
+              onClick={isListening ? stopListening : startListening}
+              disabled={!isSupported}
+              size="lg"
+              className={`
+                relative w-24 h-24 rounded-full p-0 border-4 transition-all duration-300
+                ${isListening 
+                  ? 'bg-red-500 hover:bg-red-600 border-red-300 shadow-lg shadow-red-500/50' 
+                  : 'bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 border-purple-300 shadow-lg shadow-purple-500/50'
+                }
+                ${!isSupported ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <motion.div
+                animate={isListening ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                transition={{ duration: 1, repeat: isListening ? Infinity : 0 }}
               >
-                <motion.div
-                  animate={isListening ? { rotate: 360 } : { rotate: 0 }}
-                  transition={{ duration: 2, repeat: isListening ? Infinity : 0, ease: "linear" }}
-                >
-                  {isListening ? (
-                    <MicOff className="w-10 h-10" />
-                  ) : (
-                    <Mic className="w-10 h-10" />
-                  )}
-                </motion.div>
-                
-                {/* Ripple effect */}
+                {isListening ? (
+                  <MicOff className="w-8 h-8 text-white" />
+                ) : (
+                  <Mic className="w-8 h-8 text-white" />
+                )}
+              </motion.div>
+              
+              {/* Pulse effect when listening */}
+              <AnimatePresence>
                 {isListening && (
                   <motion.div
-                    className="absolute inset-0 border-2 border-primary rounded-full"
-                    animate={{
-                      scale: [1, 1.5, 2],
-                      opacity: [0.5, 0.2, 0]
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeOut"
-                    }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: [0.5, 0], scale: [1, 2] }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute inset-0 rounded-full bg-red-400 pointer-events-none"
                   />
                 )}
-              </Button>
-            </motion.div>
-            
-            {/* Session Status */}
-            <AnimatePresence>
-              {isListening && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="glass-card px-4 py-2 rounded-full border border-primary/30"
-                >
-                  <div className="flex items-center gap-3 text-sm">
-                    <div className="flex items-center gap-2 text-primary">
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                        className="w-2 h-2 bg-primary rounded-full"
-                      />
-                      <span className="font-mono">REC</span>
-                    </div>
-                    <div className="h-4 w-px bg-border"></div>
-                    <span className="text-muted-foreground">
-                      Beszéljen a mikrofonba • Maximum{' '}
-                      <span className="text-warning font-mono">
-                        {formatDuration(MAX_SESSION_DURATION - sessionDuration)}
-                      </span>{' '}
-                      hátra
-                    </span>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+              </AnimatePresence>
+            </Button>
+          </motion.div>
         </div>
-      </motion.footer>
 
-      {/* Futuristic Save Dialog */}
-      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-        <DialogContent className="glass-card border-primary/30 max-w-md">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <DialogHeader className="space-y-4">
-              <DialogTitle className="text-2xl font-heading text-glow flex items-center gap-2">
-                <Save className="w-6 h-6 text-primary" />
-                Átirat mentése
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground">
-                Adjon címet az átiratnak, vagy hagyja üresen az alapértelmezett címhez.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4 my-4">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-foreground font-medium">Cím</Label>
-                <Input
-                  id="title"
-                  value={saveTitle}
-                  onChange={(e) => setSaveTitle(e.target.value)}
-                  placeholder="Átirat címe..."
-                  className="glass-card border-primary/30 focus:border-primary focus:ring-primary/30"
-                />
+        {/* Transcript display */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="border border-white/20 bg-white/5 backdrop-blur-md">
+            <div className="p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-white">Élő átirat</h2>
+                {transcript.length > 0 && (
+                  <Button
+                    onClick={() => setShowSaveDialog(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-purple-200 hover:text-white hover:bg-white/10"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Mentés
+                  </Button>
+                )}
               </div>
               
-              <motion.div 
-                className="glass-card p-4 space-y-2 border border-primary/20"
-                whileHover={{ borderColor: "hsl(var(--primary) / 0.4)" }}
-              >
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Szavak száma:</span>
-                  <span className="text-transcript-cyan font-mono">
-                    {wordCount + (currentInterim ? currentInterim.split(' ').filter(w => w.length > 0).length : 0)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Időtartam:</span>
-                  <span className="text-neon-gold font-mono">
-                    {formatDuration(sessionDuration)}
-                  </span>
-                </div>
-              </motion.div>
+              <div className="min-h-[300px] max-h-[400px] overflow-y-auto rounded-lg bg-black/20 p-4 text-white">
+                {transcript.length === 0 && !currentInterim ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center text-gray-400">
+                    <Mic className="w-12 h-12 mb-4 opacity-50" />
+                    <p className="text-lg">Kattintson a mikrofon gombra a beszédfelismerés indításához</p>
+                    <p className="text-sm mt-2">
+                      {speechService.isNativePlatform 
+                        ? 'Natív iOS beszédfelismerés használata' 
+                        : 'Webes beszédfelismerés használata'
+                      }
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {formatTranscriptText(transcript).map((sentence, index) => (
+                      <motion.p
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="leading-relaxed"
+                      >
+                        {sentence}
+                      </motion.p>
+                    ))}
+                    
+                    {/* Current interim results */}
+                    <AnimatePresence>
+                      {currentInterim && (
+                        <motion.p
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="text-purple-300 italic leading-relaxed"
+                        >
+                          {currentInterim}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Auto-scroll target */}
+                    <div ref={transcriptEndRef} />
+                  </div>
+                )}
+              </div>
             </div>
+          </Card>
+        </motion.div>
+      </div>
 
-            <DialogFooter className="gap-2">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  variant="outline" 
-                  onClick={discardTranscript}
-                  className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                >
-                  Elvetés
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button 
-                  onClick={saveTranscript} 
-                  className="bg-gradient-primary hover:shadow-neon flex items-center gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  Mentés
-                </Button>
-              </motion.div>
-            </DialogFooter>
-          </motion.div>
+      {/* Save Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="border border-white/20 bg-gradient-to-br from-purple-900/90 to-pink-900/90 backdrop-blur-md text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-white">Átirat mentése</DialogTitle>
+            <DialogDescription className="text-purple-200">
+              Adjon nevet az átiratnak a későbbi visszakereséshez.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="title" className="text-purple-200">Cím</Label>
+              <Input
+                id="title"
+                value={saveTitle}
+                onChange={(e) => setSaveTitle(e.target.value)}
+                placeholder={`Átirat ${new Date().toLocaleDateString('hu-HU')}`}
+                className="mt-2 border-white/20 bg-white/10 text-white placeholder:text-purple-300"
+              />
+            </div>
+            
+            <div className="text-sm text-purple-200">
+              <p>Szavak száma: {wordCount}</p>
+              <p>Időtartam: {formatDuration(sessionDuration)}</p>
+            </div>
+          </div>
+          
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              onClick={discardTranscript}
+              className="text-purple-200 hover:text-white hover:bg-white/10"
+            >
+              Elvetés
+            </Button>
+            <Button
+              onClick={saveTranscript}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Mentés
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

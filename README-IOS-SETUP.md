@@ -60,6 +60,21 @@ npx cap run ios
 - The iOS project is configured for automatic signing with team ID `TC7CDLV36Q`
 - All bundle identifiers are kept in sync between Capacitor and Xcode project
 
+## Native iOS Speech Recognition
+
+This app now supports native iOS speech recognition through Capacitor:
+
+- **On iOS devices**: Uses Apple's native speech recognition with better accuracy and performance
+- **On web browsers**: Falls back to Web Speech API (Chrome/Safari required)  
+- **Permissions**: App will request microphone and speech recognition permissions on first use
+- **Languages**: Configured for Hungarian (`hu-HU`) speech recognition
+
+The "Browser not supported" banner will only appear on web when the browser lacks Web Speech API support - it never shows on iOS devices.
+
+**Required privacy strings** (already included in `Info.plist`):
+- `NSMicrophoneUsageDescription`: For speech recording
+- `NSSpeechRecognitionUsageDescription`: For Apple's speech recognition service
+
 ## Troubleshooting
 
 ### Bundle ID Mismatch

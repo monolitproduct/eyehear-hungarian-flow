@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useNavigate } from 'react-router-dom';
 import { t } from '@/i18n';
+import { Capacitor } from '@capacitor/core';
 
 interface PermissionGuardProps {
   children: React.ReactNode;
@@ -46,8 +47,8 @@ export default function PermissionGuard({ children, onPermissionsGranted }: Perm
     );
   }
 
-  // If browser is not supported
-  if (!isSupported) {
+  // If browser is not supported (only show on web when API is missing)
+  if (!isSupported && !Capacitor.isNativePlatform()) {
     return (
       <div className="relative min-h-[100dvh]">
         <div className="pointer-events-none absolute inset-0 bg-animated-purple opacity-75" />
