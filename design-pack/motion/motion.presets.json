@@ -1,0 +1,20 @@
+{
+  "durations": {
+    "fast": "150ms",
+    "normal": "300ms", 
+    "slow": "500ms",
+    "slower": "700ms"
+  },
+  "easings": {
+    "smooth": "cubic-bezier(0.23, 1, 0.32, 1)",
+    "spring": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+    "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+  },
+  "keyAnimations": {
+    "mic-pulse": "Recording state indicator",
+    "text-glow": "Futuristic text effects",
+    "card-hover": "3D card interactions",
+    "fade-in-scale": "Content appearance",
+    "gradient-purple-move": "Background animation"
+  }
+}

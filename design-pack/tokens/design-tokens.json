@@ -1,0 +1,255 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EyeHear Futuristic Sci-Fi Design Tokens",
+  "description": "Complete design token system extracted from Lovable EyeHear app",
+  "version": "1.0.0",
+  
+  "colors": {
+    "primitives": {
+      "neutral": {
+        "0": "0 0% 0%",
+        "50": "0 0% 5%", 
+        "100": "240 10% 8%",
+        "200": "240 10% 10%",
+        "300": "240 10% 12%",
+        "400": "240 10% 15%",
+        "500": "240 10% 18%",
+        "600": "240 5% 40%",
+        "700": "240 5% 65%",
+        "800": "240 5% 85%",
+        "900": "240 5% 90%",
+        "950": "240 5% 92%",
+        "980": "0 0% 95%",
+        "990": "0 0% 98%",
+        "1000": "0 0% 100%"
+      },
+      "primary": {
+        "base": "270 100% 70%",
+        "bright": "270 100% 80%", 
+        "dark": "270 100% 60%",
+        "light": "270 100% 50%"
+      },
+      "accent": {
+        "cyan": "180 100% 50%",
+        "gold": "45 100% 50%",
+        "success": "120 100% 50%",
+        "warning": "45 100% 50%",
+        "info": "200 100% 50%",
+        "destructive": "0 100% 50%"
+      }
+    },
+    
+    "semantic": {
+      "background": {
+        "primary": "240 10% 5%",
+        "secondary": "240 10% 8%", 
+        "tertiary": "240 10% 10%"
+      },
+      "foreground": {
+        "primary": "0 0% 98%",
+        "secondary": "240 5% 65%",
+        "muted": "240 5% 40%"
+      },
+      "surface": {
+        "card": "240 10% 8%",
+        "glass": "240 10% 8% / 0.7",
+        "input": "240 10% 12%",
+        "popover": "240 10% 8%"
+      },
+      "border": {
+        "default": "240 10% 18%",
+        "muted": "240 10% 15%"
+      },
+      "interactive": {
+        "primary": "270 100% 70%",
+        "secondary": "240 10% 15%",
+        "accent": "240 10% 15%",
+        "muted": "240 10% 12%",
+        "destructive": "0 100% 50%"
+      }
+    }
+  },
+
+  "typography": {
+    "fontFamilies": {
+      "sans": ["Inter", "system-ui", "sans-serif"],
+      "heading": ["Poppins", "system-ui", "sans-serif"],
+      "mono": ["ui-monospace", "SFMono-Regular", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+    },
+    "fontWeights": {
+      "light": 300,
+      "normal": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700,
+      "extrabold": 800
+    },
+    "fontSizes": {
+      "xs": "0.75rem",
+      "sm": "0.875rem", 
+      "base": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "2xl": "1.5rem",
+      "3xl": "1.875rem",
+      "4xl": "2.25rem",
+      "5xl": "3rem"
+    },
+    "lineHeights": {
+      "tight": 1.25,
+      "snug": 1.375,
+      "normal": 1.5,
+      "relaxed": 1.625,
+      "loose": 2
+    },
+    "letterSpacing": {
+      "tighter": "-0.05em",
+      "tight": "-0.025em", 
+      "normal": "0em",
+      "wide": "0.025em",
+      "wider": "0.05em",
+      "widest": "0.1em"
+    }
+  },
+
+  "spacing": {
+    "0": "0px",
+    "px": "1px", 
+    "0.5": "0.125rem",
+    "1": "0.25rem",
+    "1.5": "0.375rem", 
+    "2": "0.5rem",
+    "2.5": "0.625rem",
+    "3": "0.75rem",
+    "3.5": "0.875rem",
+    "4": "1rem",
+    "5": "1.25rem",
+    "6": "1.5rem",
+    "7": "1.75rem",
+    "8": "2rem",
+    "9": "2.25rem",
+    "10": "2.5rem",
+    "11": "2.75rem",
+    "12": "3rem",
+    "14": "3.5rem",
+    "16": "4rem",
+    "20": "5rem",
+    "24": "6rem",
+    "28": "7rem",
+    "32": "8rem",
+    "36": "9rem",
+    "40": "10rem",
+    "44": "11rem",
+    "48": "12rem",
+    "52": "13rem",
+    "56": "14rem",
+    "60": "15rem",
+    "64": "16rem",
+    "72": "18rem",
+    "80": "20rem",
+    "96": "24rem"
+  },
+
+  "borderRadius": {
+    "none": "0px",
+    "sm": "calc(1rem - 4px)",
+    "md": "calc(1rem - 2px)", 
+    "lg": "1rem",
+    "xl": "0.75rem",
+    "2xl": "1rem",
+    "3xl": "1.5rem",
+    "full": "9999px"
+  },
+
+  "shadows": {
+    "neon": "0 0 20px hsl(270 100% 70% / 0.6)",
+    "card-3d": "0 8px 32px hsl(240 10% 3% / 0.5)",
+    "glow": "0 0 40px hsl(270 100% 70% / 0.4)",
+    "mic-glow": "0 0 40px hsl(270 100% 70% / 0.8)",
+    "glass": "0 4px 32px rgba(0, 0, 0, 0.1)"
+  },
+
+  "zIndex": {
+    "auto": "auto",
+    "0": "0",
+    "10": "10", 
+    "20": "20",
+    "30": "30",
+    "40": "40",
+    "50": "50"
+  },
+
+  "motion": {
+    "durations": {
+      "75": "75ms",
+      "100": "100ms", 
+      "150": "150ms",
+      "200": "200ms",
+      "300": "300ms",
+      "500": "500ms",
+      "700": "700ms",
+      "1000": "1000ms"
+    },
+    "easings": {
+      "linear": "linear",
+      "in": "cubic-bezier(0.4, 0, 1, 1)",
+      "out": "cubic-bezier(0, 0, 0.2, 1)",
+      "in-out": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "smooth": "cubic-bezier(0.23, 1, 0.32, 1)",
+      "spring": "cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+    },
+    "transitions": {
+      "smooth": "all 0.4s cubic-bezier(0.23, 1, 0.32, 1)",
+      "spring": "all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+    }
+  },
+
+  "breakpoints": {
+    "sm": "640px",
+    "md": "768px", 
+    "lg": "1024px",
+    "xl": "1280px",
+    "2xl": "1536px"
+  },
+
+  "opacity": {
+    "0": "0",
+    "5": "0.05",
+    "10": "0.1",
+    "20": "0.2", 
+    "25": "0.25",
+    "30": "0.3",
+    "40": "0.4",
+    "50": "0.5", 
+    "60": "0.6",
+    "70": "0.7",
+    "75": "0.75",
+    "80": "0.8",
+    "90": "0.9", 
+    "95": "0.95",
+    "100": "1"
+  },
+
+  "gradients": {
+    "primary": "linear-gradient(135deg, hsl(270 100% 70%), hsl(270 100% 80%))",
+    "pink-purple": "linear-gradient(90deg, #FF0080, #7928CA)",
+    "background": "linear-gradient(135deg, hsl(240 10% 5%), hsl(240 10% 8%))", 
+    "card": "linear-gradient(135deg, hsl(240 10% 8% / 0.8), hsl(240 10% 12% / 0.6))",
+    "header": "linear-gradient(135deg, hsl(240 10% 8% / 0.9), hsl(240 10% 5% / 0.95))",
+    "transcript": "linear-gradient(45deg, hsl(180 100% 50%), hsl(180 100% 60%))",
+    "animated-purple": "linear-gradient(135deg, hsl(280 100% 8%) 0%, hsl(320 100% 12%) 25%, hsl(260 100% 10%) 50%, hsl(340 100% 15%) 75%, hsl(280 100% 8%) 100%)"
+  },
+
+  "effects": {
+    "blur": {
+      "glass": "16px",
+      "sm": "4px", 
+      "md": "8px",
+      "lg": "16px",
+      "xl": "24px"
+    },
+    "backdrop": {
+      "glass": "blur(16px)"
+    }
+  }
+}

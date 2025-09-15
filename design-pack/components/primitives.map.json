@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EyeHear Primitive Components Style Map",
+  "description": "Complete mapping of shadcn/ui and custom primitive components with variants, states, and styling",
+  "version": "1.0.0",
+
+  "Button": {
+    "baseClasses": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+    "variants": {
+      "variant": {
+        "default": "bg-primary text-primary-foreground hover:bg-primary/90",
+        "destructive": "bg-destructive text-destructive-foreground hover:bg-destructive/90", 
+        "outline": "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        "ghost": "hover:bg-accent hover:text-accent-foreground",
+        "link": "text-primary underline-offset-4 hover:underline"
+      },
+      "size": {
+        "default": "h-10 px-4 py-2",
+        "sm": "h-9 rounded-md px-3",
+        "lg": "h-11 rounded-md px-8",
+        "icon": "h-10 w-10"
+      }
+    },
+    "defaultVariants": {
+      "variant": "default",
+      "size": "default"
+    },
+    "states": {
+      "hover": "opacity and background color transitions",
+      "focus": "ring-2 ring-ring ring-offset-2",
+      "active": "scale transformation",
+      "disabled": "opacity-50 pointer-events-none"
+    },
+    "accessibility": {
+      "focus": "focus-visible:outline-none focus-visible:ring-2",
+      "disabled": "aria-disabled when disabled prop is true"
+    }
+  },
+
+  "Input": {
+    "baseClasses": "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+    "variants": {},
+    "states": {
+      "focus": "ring-2 ring-ring ring-offset-2",
+      "disabled": "cursor-not-allowed opacity-50",
+      "placeholder": "text-muted-foreground"
+    },
+    "accessibility": {
+      "focus": "focus-visible:outline-none focus-visible:ring-2",
+      "disabled": "cursor-not-allowed when disabled"
+    }
+  },
+
+  "Card": {
+    "baseClasses": "rounded-lg border bg-card text-card-foreground shadow-sm",
+    "variants": {
+      "glass": "bg-glass backdrop-filter backdrop-blur-glass border border-border/20"
+    },
+    "subcomponents": {
+      "CardHeader": "flex flex-col space-y-1.5 p-6",
+      "CardTitle": "text-2xl font-semibold leading-none tracking-tight",
+      "CardDescription": "text-sm text-muted-foreground",
+      "CardContent": "p-6 pt-0",
+      "CardFooter": "flex items-center p-6 pt-0"
+    }
+  },
+
+  "Badge": {
+    "baseClasses": "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+    "variants": {
+      "variant": {
+        "default": "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        "secondary": "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        "destructive": "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        "outline": "text-foreground"
+      }
+    },
+    "defaultVariants": {
+      "variant": "default"
+    }
+  },
+
+  "Alert": {
+    "baseClasses": "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+    "variants": {
+      "variant": {
+        "default": "bg-background text-foreground",
+        "destructive": "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive"
+      }
+    },
+    "subcomponents": {
+      "AlertTitle": "mb-1 font-medium leading-none tracking-tight",
+      "AlertDescription": "text-sm [&_p]:leading-relaxed"
+    }
+  },
+
+  "Skeleton": {
+    "baseClasses": "animate-pulse rounded-md bg-muted"
+  },
+
+  "Label": {
+    "baseClasses": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+  },
+
+  "Separator": {
+    "baseClasses": "shrink-0 bg-border",
+    "orientations": {
+      "horizontal": "h-[1px] w-full",
+      "vertical": "h-full w-[1px]"
+    }
+  },
+
+  "Textarea": {
+    "baseClasses": "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+  },
+
+  "Progress": {
+    "baseClasses": "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
+    "subcomponents": {
+      "ProgressIndicator": "h-full w-full flex-1 bg-primary transition-all"
+    }
+  },
+
+  "Slider": {
+    "baseClasses": "relative flex w-full touch-none select-none items-center",
+    "subcomponents": {
+      "SliderTrack": "relative h-2 w-full grow overflow-hidden rounded-full bg-secondary",
+      "SliderRange": "absolute h-full bg-primary",
+      "SliderThumb": "block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+    }
+  },
+
+  "Switch": {
+    "baseClasses": "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+    "subcomponents": {
+      "SwitchThumb": "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+    }
+  },
+
+  "RadioGroup": {
+    "baseClasses": "grid gap-2",
+    "subcomponents": {
+      "RadioGroupItem": "aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    }
+  },
+
+  "Tabs": {
+    "subcomponents": {
+      "TabsList": "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      "TabsTrigger": "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+      "TabsContent": "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    }
+  },
+
+  "Toast": {
+    "baseClasses": "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+    "variants": {
+      "variant": {
+        "default": "border bg-background text-foreground",
+        "destructive": "destructive group border-destructive bg-destructive text-destructive-foreground"
+      }
+    }
+  },
+
+  "Toggle": {
+    "baseClasses": "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
+    "variants": {
+      "variant": {
+        "default": "bg-transparent",
+        "outline": "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground"
+      },
+      "size": {
+        "default": "h-10 px-3",
+        "sm": "h-9 px-2.5",
+        "lg": "h-11 px-5"
+      }
+    }
+  }
+}

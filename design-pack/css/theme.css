@@ -1,0 +1,158 @@
+/* 
+ * EyeHear Design System - CSS Variables
+ * Generated from design tokens - do not edit manually
+ * Import this file after your CSS reset and before components
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@600;700;800&display=swap');
+
+/* ============================================
+   DESIGN SYSTEM VARIABLES - DARK THEME (DEFAULT)
+   ============================================ */
+
+:root {
+  /* Futuristic Sci-Fi Dark Theme */
+  --background: 240 10% 5%;
+  --background-secondary: 240 10% 8%;
+  --background-tertiary: 240 10% 10%;
+  --foreground: 0 0% 98%;
+
+  --card: 240 10% 8%;
+  --card-foreground: 0 0% 98%;
+  --card-glass: 240 10% 8% / 0.7;
+
+  --popover: 240 10% 8%;
+  --popover-foreground: 0 0% 98%;
+
+  /* Neon Purple Primary */
+  --primary: 270 100% 70%;
+  --primary-bright: 270 100% 80%;
+  --primary-dark: 270 100% 60%;
+  --primary-foreground: 0 0% 98%;
+
+  /* Glassmorphic Secondary */
+  --secondary: 240 10% 15%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 240 10% 12%;
+  --muted-foreground: 240 5% 65%;
+
+  --accent: 240 10% 15%;
+  --accent-foreground: 0 0% 98%;
+
+  /* Enhanced Destructive */
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 240 10% 18%;
+  --input: 240 10% 12%;
+  --ring: 270 100% 70%;
+
+  /* Sci-Fi Accent Colors */
+  --transcript-cyan: 180 100% 50%;
+  --neon-gold: 45 100% 50%;
+  --success: 120 100% 50%;
+  --warning: 45 100% 50%;
+  --info: 200 100% 50%;
+
+  /* Futuristic Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(270 100% 70%), hsl(270 100% 80%));
+  --gradient-pink-purple: linear-gradient(90deg, #FF0080, #7928CA);
+  --gradient-background: linear-gradient(135deg, hsl(240 10% 5%), hsl(240 10% 8%));
+  --gradient-card: linear-gradient(135deg, hsl(240 10% 8% / 0.8), hsl(240 10% 12% / 0.6));
+  --gradient-header: linear-gradient(135deg, hsl(240 10% 8% / 0.9), hsl(240 10% 5% / 0.95));
+  --gradient-transcript: linear-gradient(45deg, hsl(180 100% 50%), hsl(180 100% 60%));
+  
+  /* 3D & Animation Effects */
+  --mic-glow: 0 0 40px hsl(270 100% 70% / 0.8);
+  --neon-glow: 0 0 20px hsl(270 100% 70% / 0.6);
+  --card-shadow: 0 8px 32px hsl(240 10% 3% / 0.5);
+  --glass-backdrop: blur(16px);
+  --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  --transition-spring: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  --radius: 1rem;
+
+  /* Sidebar System */
+  --sidebar-background: 240 10% 6%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-primary: 270 100% 70%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 10% 12%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 240 10% 15%;
+  --sidebar-ring: 270 100% 70%;
+}
+
+/* ============================================
+   LIGHT THEME OVERRIDES
+   ============================================ */
+
+.light {
+  --background: 0 0% 98%;
+  --background-secondary: 0 0% 95%;
+  --background-tertiary: 0 0% 92%;
+  --foreground: 240 10% 5%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 5%;
+  --card-glass: 0 0% 100% / 0.8;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 5%;
+
+  --primary: 270 100% 60%;
+  --primary-bright: 270 100% 70%;
+  --primary-dark: 270 100% 50%;
+  --primary-foreground: 0 0% 98%;
+
+  --secondary: 240 5% 90%;
+  --secondary-foreground: 240 10% 5%;
+
+  --muted: 240 5% 92%;
+  --muted-foreground: 240 5% 40%;
+
+  --accent: 240 5% 88%;
+  --accent-foreground: 240 10% 5%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 240 5% 85%;
+  --input: 240 5% 90%;
+  --ring: 270 100% 60%;
+
+  --transcript-cyan: 180 100% 40%;
+  --neon-gold: 45 100% 45%;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile First Breakpoints */
+/* sm: 640px and up */
+/* md: 768px and up */
+/* lg: 1024px and up */
+/* xl: 1280px and up */
+/* 2xl: 1536px and up */
+
+/* ============================================
+   ACCESSIBILITY & MOTION
+   ============================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .animate-pulse-ring,
+  .mic-glow-ring-1,
+  .mic-glow-ring-2 {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
